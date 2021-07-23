@@ -17,8 +17,9 @@ import subprocess
 # Automatically set the python path
 package_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, package_path)
-from davai_api.experiment import AnXP
-from davai_api.api import this_repo, guess_host, defaults, DAVAI_IAL_REPOSITORY
+from davai_cmd.experiment import AnXP
+from davai_cmd.env import this_repo, guess_host, defaults, davai_tests
+from davai_cmd.env import DAVAI_IAL_REPOSITORY  # CLEANME: bundle
 
 DAVAI_HOST = guess_host()
 
@@ -49,13 +50,16 @@ def main(tests_version,
     :param dev_mode: to link tasks sources rather than to copy them
     """
     # Switch to required version of the tests
+    os.chdir(this_repo)
+    os.chdir(davai_tests)
     git_branch = subprocess.check_output(['git', 'branch'],
-                                         cwd=this_repo, stderr=None).decode('utf-8').split('\n')
+                                         cwd=davai_tests, stderr=None).decode('utf-8').split('\n')
     head = [line.strip() for line in git_branch if line.startswith('*')][0][2:]
     if head != tests_version:
         print("Switch davai_api repo from current '{}' to tests_version '{}'".format(
             head, tests_version))
-        subprocess.check_call(['git', 'checkout', 'origin/{}'.format(tests_version)], cwd=this_repo)
+        subprocess.check_call(['git', 'checkout', 'origin/{}'.format(tests_version)], cwd=davai_tests)
+        # FIXME: what about tags and/or commits ?
     # Set XP
     XP = AnXP(IAL_git_ref,
               IAL_repository=IAL_repository,

@@ -15,43 +15,28 @@ import configparser
 # Automatically set the python path
 package_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, package_path)
-from davai_api.api import (davai_home, this_repo, user_config_file,
+from davai_cmd.env import (davai_home, this_repo, user_config_file,
                            defaults, possible_defaults_in_user_config)
 
 
-def main(local_repo=defaults['local_repo'],
-         XP_directory=defaults['XP_directory'],
+def main(XP_directory=defaults['XP_directory'],
          logs_directory=defaults['logs_directory'],
          **_):
     """
     Initialize Davai API for user.
     """
-    # set directories
-    local_repo = os.path.abspath(os.path.expanduser(local_repo))
+    # set home
     if not os.path.exists(davai_home):
         os.makedirs(davai_home)
-    parent_directory = os.path.dirname(local_repo)
-    if not os.path.exists(parent_directory):
-        os.makedirs(parent_directory)
-    # clone API
-    ok = input("Confirm cloning Davai API to '{}' (y/n) [y] : ".format(local_repo)) in ("y", "Y", "")
-    if ok:
-        if os.path.exists(local_repo):
-            raise OSError("'{}' already exists !".format(local_repo))
-        subprocess.check_call(['git', 'clone', this_repo, local_repo])
-    else:
-        print("Exit.")
-        exit()
     # set user_config
     user_config = configparser.ConfigParser()
     user_config.add_section('davai')
-    if local_repo != defaults['local_repo']:
-        user_config['davai']['local_repo'] = local_repo
     if XP_directory != defaults['XP_directory']:
         user_config['davai']['XP_directory'] = XP_directory
     if logs_directory != defaults['logs_directory']:
         user_config['davai']['logs_directory'] = logs_directory
     user_config.add_section('packages')
+    overwrite = True
     if os.path.exists(user_config_file):
         overwrite = input("Overwrite '{}' ? (y/n) : ".format(user_config_file)) in ('y', 'Y')
     if overwrite:
@@ -60,18 +45,14 @@ def main(local_repo=defaults['local_repo'],
         print("\nUser config written in '{}'".format(user_config_file))
     else:
         print("Warning: initialization might not be consistent with user config !")
-    # final write
+    # final prompt
     print("To finalize setup, please export and/or copy to .bash_profile:")
     print("# DAVAI API:")
-    print("export PATH=$PATH:{}/bin\n".format(local_repo))
+    print("export PATH=$PATH:{}/bin\n".format(this_repo))
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Initialize Davai API for user.")
-    parser.add_argument('-r', '--local_repo',
-                        help="path in which will be locally cloned the Davai API; defaults to: '{}'".format(
-                            defaults['local_repo']),
-                        default=defaults['local_repo'])
     parser.add_argument('-x', '--XP_directory',
                         help="path in which to create experiments; defaults to: '{}'".format(
                             defaults['XP_directory']),

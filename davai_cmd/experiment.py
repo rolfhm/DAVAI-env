@@ -13,7 +13,7 @@ import os
 
 from bronx.stdtypes import date
 
-from .api import (this_repo, guess_host, general_config, user_config,
+from .env import (this_repo, this_repo_tests, guess_host, general_config, user_config,
                   defaults, next_xp_num, DAVAI_IAL_REPOSITORY)
 
 
@@ -102,13 +102,13 @@ class AnXP(object):
 
     def _set_tasks(self):
         """Set tasks (templates)."""
-        self.set(os.path.join(this_repo, 'tasks'),
+        self.set(os.path.join(this_repo_tests, 'tasks'),
                  'tasks')
 
     @property
     def _host_XP_config_file(self):
         """Relative path of XP config file, according to host."""
-        return os.path.join('conf', '{}.ini'.format(self.host))
+        return os.path.join(this_repo_tests, 'conf', '{}.ini'.format(self.host))
 
     @property
     def _XP_config_file(self):
@@ -119,7 +119,7 @@ class AnXP(object):
         """Copy and update XP config file."""
         # initialize
         os.makedirs('conf')
-        shutil.copy(os.path.join(this_repo, self._host_XP_config_file),
+        shutil.copy(self._host_XP_config_file,
                     self._XP_config_file)
         to_set_in_config = {k:getattr(self, k)
                             for k in
@@ -142,13 +142,13 @@ class AnXP(object):
     def _set_runs(self):
         """Set run-wrapping scripts."""
         for r in ('run.sh', 'setup_ciboulai.sh', 'packbuild.sh'):
-            self.set(os.path.join(this_repo, 'runs', r), r)
-        self.set(os.path.join(this_repo, 'runs', '{}_tests.sh'.format(self.usecase)),
+            self.set(os.path.join(this_repo_tests, 'runs', r), r)
+        self.set(os.path.join(this_repo_tests, 'runs', '{}_tests.sh'.format(self.usecase)),
                  'tests.sh')
 
     def _link_packages(self):
         """Link necessary packages in XP."""
-        os.symlink(os.path.join(this_repo, 'davai_api'), 'davai_api')
+        os.symlink(os.path.join(this_repo_tests, 'davai_taskutil'), 'davai_taskutil')
         for package, path in self.packages.items():
             os.symlink(path, package)
 

@@ -12,7 +12,8 @@ import socket
 
 davai_home = os.path.join(os.environ['HOME'], '.davairc')
 this_repo = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-davai_api_name = os.path.basename(this_repo)
+davai_tests = 'davai-tests'
+this_repo_tests = os.path.join(this_repo, davai_tests)
 davai_xp_counter = os.path.join(os.environ['HOME'], '.davairc', '.last_xp')
 DAVAI_IAL_REPOSITORY = os.environ.get('DAVAI_IAL_REPOSITORY',
                                       os.path.join(os.environ.get('HOME'), 'repositories', 'arpifs'))
@@ -30,11 +31,6 @@ if os.path.exists(user_config_file):
 def set_defaults():
     """Set defaults, actual defaults or from user config if present"""
     defaults = {}
-    # local repository
-    local_repo = os.path.join(davai_home, davai_api_name)
-    if 'davai' in user_config.sections():
-        local_repo = user_config['davai'].get('local_repo', local_repo)
-    defaults['local_repo'] = os.path.abspath(os.path.expanduser(local_repo))
     # XP directory
     XP_directory = os.path.join(os.environ['HOME'], 'davai', 'experiments')
     if 'davai' in user_config.sections():

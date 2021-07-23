@@ -1,11 +1,9 @@
 #!/usr/bin/bash
 
 echo "Available *davai* commands:"
-echo "    davai_init                     => initialize Davai API"
-echo "    davai_prep_xp                  => prepare a testing experiment"
-echo "    davai_update_api               => update Davai API"
-echo "    davai_guess_host               => guess host platform name"
-echo "    davai_shelf                    => move *shelves* of input data"
+echo "    davai-init                     => initialize Davai API"
+echo "    davai-prep_xp                  => prepare a testing experiment"
+echo "    davai-shelf                    => move *shelves* of input data"
 echo "    (Help available with option -h for each command)"
 echo "-------------------------------------------------------------------------"
 
