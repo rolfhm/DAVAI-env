@@ -14,6 +14,8 @@ davai_home = os.path.join(os.environ['HOME'], '.davairc')
 this_repo = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 davai_api_name = os.path.basename(this_repo)
 davai_xp_counter = os.path.join(os.environ['HOME'], '.davairc', '.last_xp')
+DAVAI_IAL_REPOSITORY = os.environ.get('DAVAI_IAL_REPOSITORY',
+                                      os.path.join(os.environ.get('HOME'), 'repositories', 'arpifs'))
 
 # config
 general_config_file = os.path.join(this_repo, 'conf', 'general.ini')
