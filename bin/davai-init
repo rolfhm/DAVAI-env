@@ -28,6 +28,14 @@ def main(XP_directory=defaults['XP_directory'],
     # set home
     if not os.path.exists(davai_home):
         os.makedirs(davai_home)
+    link = os.path.join(davai_home, 'davai')
+    if os.path.exists(link):
+        overwrite = input("Relink '{}' to '{}' ? (y/n) : ".format(link, this_repo)) in ('y', 'Y')
+        if not overwrite:
+            link = False
+            print("Warning: initialization might not be consistent with existing link !")
+    if link:
+        os.symlink(this_repo, link)
     # set user_config
     user_config = configparser.ConfigParser()
     user_config.add_section('davai')
@@ -36,15 +44,15 @@ def main(XP_directory=defaults['XP_directory'],
     if logs_directory != defaults['logs_directory']:
         user_config['davai']['logs_directory'] = logs_directory
     user_config.add_section('packages')
-    overwrite = True
     if os.path.exists(user_config_file):
         overwrite = input("Overwrite '{}' ? (y/n) : ".format(user_config_file)) in ('y', 'Y')
-    if overwrite:
+        if not overwrite:
+            user_config_file = None
+            print("Warning: initialization might not be consistent with user config !")
+    if user_config_file:
         with io.open(user_config_file, 'w') as out:
             user_config.write(out)
         print("\nUser config written in '{}'".format(user_config_file))
-    else:
-        print("Warning: initialization might not be consistent with user config !")
     # final prompt
     print("To finalize setup, please export and/or copy to .bash_profile:")
     print("# DAVAI API:")
