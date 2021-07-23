@@ -1,0 +1,3 @@
+[submodule "davai-tests"]
+	path = davai-tests
+	url = https://github.com/AlexandreMary/davai-tests.git
