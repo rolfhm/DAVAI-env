@@ -1,0 +1,121 @@
+#!/usr/bin/env python3
+# -*- coding:Utf-8 -*-
+"""
+Create a Davai experiment based on a **git_ref**.
+"""
+from __future__ import print_function, absolute_import, unicode_literals, division
+
+import os
+import shutil
+import io
+import argparse
+import re
+import sys
+import getpass
+import subprocess
+
+# Automatically set the python path
+package_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, package_path)
+from davai_api.experiment import AnXP
+from davai_api.api import this_repo, guess_host, defaults, DAVAI_IAL_REPOSITORY
+
+DAVAI_HOST = guess_host()
+
+
+def main(tests_version,
+         IAL_git_ref,
+         IAL_repository=DAVAI_IAL_REPOSITORY,
+         usecase=defaults['usecase'],
+         ref_xpid='NONE',
+         comment=None,
+         host=DAVAI_HOST,
+         XP_directory=defaults['XP_directory'],
+         logs_directory=defaults['logs_directory'],
+         dev_mode=False):
+    """
+    Setup an XP.
+
+    :param tests_version: version of the test bench to be used
+    :param IAL_git_ref: the IFS-Arpege-LAM git reference to be tested
+    :param IAL_repository: path to the IAL repository in which to get **IAL_git_ref** sources
+    :param usecase: among NRV, ELP, PC, ...
+    :param comment: descriptive comment for the experiment (defaults to **IAL_git_ref**)
+    :param host: name of host machine, to link necessary packages and get according config file
+        (otherwise guessed)
+    :param XP_directory: to specify a directory in which to create experiment, different from the default one
+        defined in user_config.ini
+    :param logs_directory: path in which to store log files
+    :param dev_mode: to link tasks sources rather than to copy them
+    """
+    # Switch to required version of the tests
+    git_branch = subprocess.check_output(['git', 'branch'],
+                                         cwd=this_repo, stderr=None).decode('utf-8').split('\n')
+    head = [line.strip() for line in git_branch if line.startswith('*')][0][2:]
+    if head != tests_version:
+        print("Switch davai_api repo from current '{}' to tests_version '{}'".format(
+            head, tests_version))
+        subprocess.check_call(['git', 'checkout', 'origin/{}'.format(tests_version)], cwd=this_repo)
+    # Set XP
+    XP = AnXP(IAL_git_ref,
+              IAL_repository=IAL_repository,
+              usecase=usecase,
+              ref_xpid=ref_xpid,
+              comment=comment,
+              host=host,
+              XP_directory=XP_directory,
+              logs_directory=logs_directory,
+              dev_mode=dev_mode)
+    XP.setup()
+
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description='Create a Davai experiment based on a Git reference.')
+    parser.add_argument('IAL_git_ref',
+                        help="IFS-Arpege-LAM Git reference to be tested")
+    parser.add_argument('-v', '--tests_version',
+                        help="Version of the test bench to be used.",
+                        required=True)
+    parser.add_argument('--repo', '--IAL_repository',
+                        default=DAVAI_IAL_REPOSITORY,
+                        dest='IAL_repository',
+                        help="Path to IFS-Arpege-LAM Git repository. " +
+                             "Default ({}) can be set through $DAVAI_IAL_REPOSITORY".format(DAVAI_IAL_REPOSITORY))
+    parser.add_argument('-u', '--usecase',
+                        default=defaults['usecase'],
+                        help="Usecase: NRV (restrained set of canonical tests) or ELP (extended elementary tests); " +
+                             "More (PC, ...) to come. Defaults to: '{}'".format(defaults['usecase']))
+    parser.add_argument('-r', '--ref_xpid',
+                        default='NONE',
+                        help="Reference XPID, to compare results to")
+    parser.add_argument('-c', '--comment',
+                        default=None,
+                        help="Comment about experiment. Defaults to IAL_git_ref.")
+    parser.add_argument('-d', '--XP_directory',
+                        default=defaults['XP_directory'],
+                        help="Path to experiments directory (default: '{}').".format(defaults['XP_directory']))
+    parser.add_argument('-l', '--logs_directory',
+                        help="path in which to store log files; defaults to: '{}'".format(
+                            defaults['logs_directory']),
+                        default=defaults['logs_directory'])
+    parser.add_argument('--host',
+                        default=DAVAI_HOST,
+                        help="Generic name of host machine, in order to find paths to necessary packages. " +
+                             "Default is guessed ({}), or can be set through $DAVAI_HOST".format(DAVAI_HOST))
+    parser.add_argument('--dev_mode',
+                        default=False,
+                        action='store_true',
+                        help="to link tasks sources rather than to copy them")
+    args = parser.parse_args()
+
+    main(args.tests_version, args.IAL_git_ref,
+         IAL_repository=args.IAL_repository,
+         usecase=args.usecase,
+         ref_xpid=args.ref_xpid,
+         comment=args.comment,
+         host=args.host,
+         XP_directory=args.XP_directory,
+         logs_directory=args.logs_directory,
+         dev_mode=args.dev_mode)
+
