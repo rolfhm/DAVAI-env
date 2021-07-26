@@ -14,9 +14,9 @@ import sys
 import getpass
 import subprocess
 
-# Automatically set the python path
-package_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
-sys.path.insert(0, package_path)
+# Automatically set the python path for davai_cmd
+repo_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, os.path.join(repo_path, 'src'))
 from davai_cmd.experiment import AnXP
 from davai_cmd.env import this_repo, guess_host, defaults, davai_tests
 from davai_cmd.env import DAVAI_IAL_REPOSITORY  # CLEANME: bundle
