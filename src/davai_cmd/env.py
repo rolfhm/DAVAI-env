@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding:Utf-8 -*-
 """
-Davai API.
+Davai environment.
 """
 from __future__ import print_function, absolute_import, unicode_literals, division
 
@@ -19,7 +19,7 @@ davai_xp_counter = os.path.join(os.environ['HOME'], '.davairc', '.last_xp')
 # repo
 this_repo = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 davai_tests = 'davai-tests'
-this_repo_tests = os.path.join(this_repo, 'src', davai_tests)
+this_repo_tests = os.path.join(this_repo, davai_tests)
 
 def guess_host():
     """
