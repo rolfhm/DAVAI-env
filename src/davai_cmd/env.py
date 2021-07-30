@@ -93,9 +93,10 @@ def init():
     if not os.path.exists(davai_rc):
         os.makedirs(davai_rc)
     # link repo (to have command line tools in PATH)
-    link = os.path.join(davai_rc, 'davai')
+    link = os.path.join(davai_rc, 'bin')
+    this_repo_bin = os.path.join(this_repo, 'bin')
     if os.path.exists(link):
-        overwrite = input("Relink '{}' to '{}' ? (y/n) : ".format(link, this_repo)) in ('y', 'Y')
+        overwrite = input("Relink '{}' to '{}' ? (y/n) : ".format(link, this_repo_bin)) in ('y', 'Y')
         if overwrite:
             os.unlink(link)
         else:
@@ -104,6 +105,6 @@ def init():
     if link:
         os.symlink(this_repo, link)
         print("To finalize setup, please export and/or copy to .bash_profile:")
-        print("export PATH=$PATH:{}/bin".format(link))
+        print("export PATH=$PATH:{}".format(link))
     print("DAVAI initialization completed.")
     print("------------------------------")
