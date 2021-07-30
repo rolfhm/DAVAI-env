@@ -6,7 +6,7 @@ all: clean
 
 # TARGETS
 init:
-	python bin/davai-init
+	python3 bin/davai-init
 
 clean:
 	find . -name "*.pyc"       -print0 | xargs -0r rm
