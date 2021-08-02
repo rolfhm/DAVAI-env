@@ -103,7 +103,7 @@ def init():
             link = None
             print("Warning: initialization might not be consistent with existing link !")
     if link:
-        os.symlink(this_repo, link)
+        os.symlink(this_repo_bin, link)
         print("To finalize setup, please export and/or copy to .bash_profile:")
         print("export PATH=$PATH:{}".format(link))
     print("DAVAI initialization completed.")
