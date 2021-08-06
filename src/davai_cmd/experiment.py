@@ -49,7 +49,7 @@ class AnXP(object):
         assert usecase in ('NRV', 'ELP'), "Usecase not implemented yet: " + usecase
         self.usecase = usecase
         self.xpid = '{:04}-{}@{}'.format(next_xp_num(), IAL_git_ref, getpass.getuser())
-        self.ref_xpid = ref_xpid
+        self.ref_xpid = self.xpid if ref_xpid == 'SELF' else ref_xpid
         self.comment = comment if comment is not None else IAL_git_ref
         self.vconf = usecase.lower()
         self.host = host

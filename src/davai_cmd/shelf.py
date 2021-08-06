@@ -16,7 +16,7 @@ from .env import config, guess_host
 
 # set variables
 host = guess_host()
-vortex_cache_config = os.path.join(config['packages']['vortex']),
+vortex_cache_config = os.path.join(config['packages']['vortex'],
                                    'conf', 'cache-{}.ini'.format(host))
 cache_config = configparser.ConfigParser()
 cache_config.read(vortex_cache_config)
