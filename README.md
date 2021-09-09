@@ -1,24 +1,38 @@
-DAVAI tests templates and interface
-===================================
+DAVAI environment & interface
+=============================
 
-The DAVAI project contains the commandline tool to create DAVAI experiments,
-and embarks the sub-project `davai-tests` that contains the tests templates.
+This project contains:
+* the commandline tool to create DAVAI experiments,
+* the configuration files to handle general preferences and machine-dependent installation,
+* and it embarks the sub-project `davai-tests` that contains the tests templates.
+
+Although versioned independantly, the `davai-tests` subproject is embedded here in order
+to be able to switch the tests version at time of creation of a DAVAI experiment.
 
 Installation
 ------------
 
 1. assert to have a recent version of git:
    (e.g. on belenos `module load git`)
-2. clone this repository (`git clone https://github.com/AlexandreMary/davai.git`)
-3. initialize your DAVAI environment: `make init` (or `<your_clone>/bin/davai-init`)
+2. clone this repository (`git clone https://github.com/AlexandreMary/davai-env.git`)
+3. initialize your DAVAI environment: `make init` (or `bin/davai-init`)
 4. `export PATH=$PATH:~/.davairc/bin`
+   (preferably in your `.bash_profile`)
+
+Dependencies
+------------
+
+DAVAI tests require the following packages:
+* `ial_build`: wrappers to build IAL executables
+* `ial_expertise`: to analyse the outputs of the tests
+* Vortex project and its sub-packages
 
 By the way
 ----------
 
-DAVAI means
+DAVAI means:
 
 *"Dispositif d'Aide a la Validation d'Arpege-IFS & modeles a aire limitee"*
 
-*"Device Aiming at Validation of Arpege-IFS & limited area models"*
+*"Device Aiming at the Validation of Arpege-IFS & limited area models"*
 

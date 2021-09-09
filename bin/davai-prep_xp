@@ -60,8 +60,8 @@ if __name__ == '__main__':
                         default=config['paths']['IAL_repository'],
                         dest='IAL_repository',
                         help="Path to IFS-Arpege-LAM Git repository. " +
-                             "Default ({}) can be set through section [paths] " +
-                             "of user config file".format(config['paths']['IAL_repository']))
+                             ("Default ({}) can be set through section [paths] " +
+                              "of user config file").format(config['paths']['IAL_repository']))
     parser.add_argument('-u', '--usecase',
                         default=config['defaults']['usecase'],
                         help="Usecase: NRV (restrained set of canonical tests) or ELP (extended elementary tests); " +
@@ -75,8 +75,8 @@ if __name__ == '__main__':
     parser.add_argument('--host',
                         default=DAVAI_HOST,
                         help="Generic name of host machine, in order to find paths to necessary packages. " +
-                             "Default is guessed ({}), or can be set through " +
-                             "section 'hosts' of user config file".format(DAVAI_HOST))
+                             ("Default is guessed ({}), or can be set through " +
+                              "section 'hosts' of user config file").format(DAVAI_HOST))
     args = parser.parse_args()
 
     main(args.tests_version, args.IAL_git_ref,
