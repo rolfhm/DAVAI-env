@@ -12,7 +12,7 @@ import socket
 import io
 import copy
 
-__version__ = '0.0.2'
+__version__ = '0.1.0'
 
 # fixed parameters
 davai_rc = os.path.join(os.environ['HOME'], '.davairc')
