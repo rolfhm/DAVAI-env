@@ -16,8 +16,8 @@ import io
 import re
 import subprocess
 
-from .env import this_repo_tests, config
-from .env import guess_host, next_xp_num, expandpath
+from . import this_repo_tests, config
+from . import guess_host, next_xp_num, expandpath
 
 
 class AnXP(object):

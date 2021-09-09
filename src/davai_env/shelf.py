@@ -12,7 +12,7 @@ import tempfile
 import subprocess
 import tarfile
 
-from .env import config, guess_host
+from . import config, guess_host
 
 # set variables
 host = guess_host()

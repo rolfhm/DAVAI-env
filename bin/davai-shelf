@@ -13,7 +13,7 @@ import argparse
 # Automatically set the python path for davai_cmd
 repo_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, os.path.join(repo_path, 'src'))
-from davai_cmd.shelf import Shelf
+from davai_env.shelf import Shelf
 
 
 if __name__ == '__main__':

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding:Utf-8 -*-
 """
-Davai environment.
+Davai environment around experiments and shelves.
 """
 from __future__ import print_function, absolute_import, unicode_literals, division
 
@@ -11,6 +11,8 @@ import configparser
 import socket
 import io
 import copy
+
+__version__ = '0.0.2'
 
 # fixed parameters
 davai_rc = os.path.join(os.environ['HOME'], '.davairc')

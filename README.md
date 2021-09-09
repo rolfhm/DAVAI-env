@@ -2,8 +2,9 @@ DAVAI environment & interface
 =============================
 
 This project contains:
-* the commandline tool to create DAVAI experiments,
+* the command-line tool to initialize one's DAVAI environment and to create DAVAI experiments,
 * the configuration files to handle general preferences and machine-dependent installation,
+* a tool for DAVAI developers to move shelves around,
 * and it embarks the sub-project `davai-tests` that contains the tests templates.
 
 Although versioned independantly, the `davai-tests` subproject is embedded here in order

@@ -13,8 +13,8 @@ import subprocess
 # Automatically set the python path for davai_cmd
 repo_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, os.path.join(repo_path, 'src'))
-from davai_cmd.experiment import AnXP
-from davai_cmd.env import this_repo_tests, guess_host, config
+from davai_env import this_repo_tests, guess_host, config
+from davai_env.experiment import AnXP
 
 DAVAI_HOST = guess_host()
 
