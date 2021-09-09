@@ -11,6 +11,7 @@ import configparser
 import socket
 import io
 import copy
+import subprocess
 
 __version__ = '0.1.0'
 
@@ -110,3 +111,11 @@ def init():
         print("export PATH=$PATH:{}".format(link))
     print("DAVAI initialization completed.")
     print("------------------------------")
+
+
+def update():
+    """Update davai-env and davai-tests repositories using `git fetch`."""
+    print("Update {} ...".format(this_repo))
+    subprocess.check_call(['git', 'fetch', 'origin'], cwd=this_repo)
+    print("Update {} ...".format(this_repo_tests))
+    subprocess.check_call(['git', 'fetch', 'origin'], cwd=this_repo_tests)

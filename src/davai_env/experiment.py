@@ -106,8 +106,12 @@ class AnXP(object):
         if head != self.tests_version:
             print("Switch davai-tests repo from current '{}' to tests_version '{}'".format(
                 head, self.tests_version))
-            subprocess.check_call(['git', 'checkout', 'origin/{}'.format(self.tests_version)], cwd=this_repo_tests)
-            # FIXME: what about tags and/or commits ?
+            try:
+                subprocess.check_call(['git', 'checkout', 'origin/{}'.format(self.tests_version)], cwd=this_repo_tests)
+                # FIXME: what about tags and/or commits ?
+            except subprocess.CalledProcessError:
+                print("Have you updated your davai-tests repository (command: davai-update) ?")
+                raise
         # and copy/link
         self._set(os.path.join(this_repo_tests, 'src', 'tasks'),
                   'tasks')
