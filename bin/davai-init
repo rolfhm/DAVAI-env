@@ -23,7 +23,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.show_user_config_template:
         print("User config file is to be completed in : '{}'".format(user_config_file))
-        print("A template can be found in templates/user_config.ini")
+        print("An example can be found in templates/user_config.ini")
         exit(0)
     else:
         init()

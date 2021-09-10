@@ -13,7 +13,7 @@ import io
 import copy
 import subprocess
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 # fixed parameters
 davai_rc = os.path.join(os.environ['HOME'], '.davairc')
