@@ -70,11 +70,16 @@ class AnXP(object):
         """Relative path of local XP config file."""
         return os.path.join('conf', 'davai_{}.ini'.format(self.vconf))
 
-    def setup(self):
-        """Setup the XP."""
+    def setup(self, take_tests_version_from_remote='origin'):
+        """
+        Setup the XP.
+
+        :param take_tests_version_from_remote: to pick tests version from a remote in case of a branch
+            None, False or '' to pick local branch
+        """
         self._set_XP_path()
         self._set_conf()
-        self._set_tasks()
+        self._set_tasks(take_from_remote=take_tests_version_from_remote)
         self._set_runs()
         self._link_packages()
         self._link_logs()
@@ -97,21 +102,54 @@ class AnXP(object):
             else:
                 shutil.copytree(source, target)
 
-    def _set_tasks(self):
-        """Set tasks (templates)."""
-        # Switch to required version of the tests
+    @classmethod
+    def set_tests_version(cls, gitref, take_from_remote='origin'):
+        """Check that requested tests version exists, and switch to it."""
         branches = subprocess.check_output(['git', 'branch'],
                                            cwd=this_repo_tests, stderr=None).decode('utf-8').split('\n')
-        head = [line.strip() for line in branches if line.startswith('*')][0][2:]
-        if head != self.tests_version:
-            print("Switch davai-tests repo from current '{}' to tests_version '{}'".format(
-                head, self.tests_version))
+        head_branch = [line.strip() for line in branches if line.startswith('*')][0][2:]
+        if head_branch != gitref or (head_branch == gitref and take_from_remote):
+            # determine if required tests version is a branch or not
             try:
-                subprocess.check_call(['git', 'checkout', 'origin/{}'.format(self.tests_version)], cwd=this_repo_tests)
-                # FIXME: what about tags and/or commits ?
+                # A: is it a local branch ?
+                cmd = ['git', 'show-ref', '--verify', 'refs/heads/{}'.format(gitref)]
+                subprocess.check_call(cmd,
+                                      cwd=this_repo_tests,
+                                      stderr=subprocess.DEVNULL,
+                                      stdout=subprocess.DEVNULL)
+            except subprocess.CalledProcessError:
+                # A.no
+                print("'{}' is not known in refs/heads/".format(gitref))
+                # B: maybe it is a remote branch ?
+                if take_from_remote:
+                    cmd = ['git', 'show-ref', '--verify', 'refs/remotes/{}/{}'.format(take_from_remote, gitref)]
+                    try:
+                        subprocess.check_call(cmd,
+                                              cwd=this_repo_tests,
+                                              stderr=subprocess.DEVNULL,
+                                              stdout=subprocess.DEVNULL)
+                    except subprocess.CalledProcessError:
+                        # B.no: so either it is tag/commit, or doesn't exist, nothing to do about remote
+                        print("'{}' is not known in refs/remotes/{}".format(gitref, take_from_remote))
+                    else:
+                        # B.yes: remote branch only
+                        gitref = '/'.join([take_from_remote, gitref])
+                        print("'{}' taken from remote '{}'".format(gitref, take_from_remote))
+            else:
+                # A.yes: this is a local branch, do we take it from remote or local ?
+                if take_from_remote:
+                    gitref = '/'.join([take_from_remote, gitref])
+            # remote question has been sorted
+            print("Switch davai-tests repo from current '{}' to '{}'".format(head_branch, gitref))
+            try:
+                subprocess.check_call(['git', 'checkout', gitref], cwd=this_repo_tests)
             except subprocess.CalledProcessError:
                 print("Have you updated your davai-tests repository (command: davai-update) ?")
                 raise
+
+    def _set_tasks(self, take_from_remote='origin'):
+        """Set tasks (templates)."""
+        self.set_tests_version(self.tests_version, take_from_remote=take_from_remote)
         # and copy/link
         self._set(os.path.join(this_repo_tests, 'src', 'tasks'),
                   'tasks')

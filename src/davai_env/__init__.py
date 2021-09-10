@@ -82,6 +82,8 @@ def init():
     """
     Initialize Davai env for user.
     """
+    # Initialize submodules ifneedbe
+    subprocess.check_call(['git', 'submodule', 'update', '--init'], cwd=this_repo)
     # Setup home
     for d in ('davai_home', 'experiments', 'logs'):
         p = expandpath(config.get('paths', d))
@@ -115,7 +117,8 @@ def init():
 
 def update():
     """Update davai-env and davai-tests repositories using `git fetch`."""
-    print("Update {} ...".format(this_repo))
-    subprocess.check_call(['git', 'fetch', 'origin'], cwd=this_repo)
     print("Update {} ...".format(this_repo_tests))
     subprocess.check_call(['git', 'fetch', 'origin'], cwd=this_repo_tests)
+    print("Update {} ...".format(this_repo))
+    subprocess.check_call(['git', 'fetch', 'origin'], cwd=this_repo)
+    subprocess.check_call(['git', 'submodule', 'update'], cwd=this_repo)

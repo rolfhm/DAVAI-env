@@ -25,6 +25,7 @@ def main(tests_version,
          usecase=config['defaults']['usecase'],
          ref_xpid='NONE',
          comment=None,
+         take_tests_version_from_remote='origin',
          host=DAVAI_HOST):
     """
     Setup an XP.
@@ -34,9 +35,13 @@ def main(tests_version,
     :param IAL_repository: path to the IAL repository in which to get **IAL_git_ref** sources
     :param usecase: among NRV, ELP, PC, ...
     :param comment: descriptive comment for the experiment (defaults to **IAL_git_ref**)
+    :param take_tests_version_from_remote: to pick tests version from a remote in case of a branch
+        None, False or '' to pick local branch
     :param host: name of host machine, to link necessary packages and get according config file
         (otherwise guessed)
     """
+    # pre-check tests version
+    AnXP.set_tests_version(tests_version, take_from_remote=take_tests_version_from_remote)
     # Set XP
     XP = AnXP(IAL_git_ref,
               tests_version=tests_version,
@@ -45,7 +50,7 @@ def main(tests_version,
               ref_xpid=ref_xpid,
               comment=comment,
               host=host)
-    XP.setup()
+    XP.setup(take_tests_version_from_remote=take_tests_version_from_remote)
 
 
 if __name__ == '__main__':
@@ -72,16 +77,22 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--comment',
                         default=None,
                         help="Comment about experiment. Defaults to IAL_git_ref.")
+    parser.add_argument('--remote',
+                        default='origin',
+                        help="to pick davai-tests version from a remote in case of a branch;" +
+                             " None, False or local to pick local branch.")
     parser.add_argument('--host',
                         default=DAVAI_HOST,
                         help="Generic name of host machine, in order to find paths to necessary packages. " +
                              ("Default is guessed ({}), or can be set through " +
                               "section 'hosts' of user config file").format(DAVAI_HOST))
     args = parser.parse_args()
+    remote = False if args.remote in ('None', 'False', 'local') else args.remote
 
     main(args.tests_version, args.IAL_git_ref,
          IAL_repository=args.IAL_repository,
          usecase=args.usecase,
          ref_xpid=args.ref_xpid,
          comment=args.comment,
+         take_tests_version_from_remote=remote,
          host=args.host)
