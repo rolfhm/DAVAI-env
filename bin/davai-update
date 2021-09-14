@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding:Utf-8 -*-
 """
-Update your DAVAI environment and tests versionning davai-env|davai-tests repositories (git fetch).
+Update your DAVAI environment and tests versionning DAVAI-env|DAVAI-tests repositories (git fetch).
 """
 from __future__ import print_function, absolute_import, unicode_literals, division
 
@@ -17,6 +17,6 @@ from davai_env import update
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Update your DAVAI environment and tests versionning" +
-                                                 " davai-env|davai-tests repositories (git fetch).")
+                                                 " DAVAI-env|DAVAI-tests repositories (git fetch).")
     args = parser.parse_args()
     update()

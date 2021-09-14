@@ -140,11 +140,11 @@ class AnXP(object):
                 if take_from_remote:
                     gitref = '/'.join([take_from_remote, gitref])
             # remote question has been sorted
-            print("Switch davai-tests repo from current '{}' to '{}'".format(head_branch, gitref))
+            print("Switch DAVAI-tests repo from current '{}' to '{}'".format(head_branch, gitref))
             try:
                 subprocess.check_call(['git', 'checkout', gitref], cwd=this_repo_tests)
             except subprocess.CalledProcessError:
-                print("Have you updated your davai-tests repository (command: davai-update) ?")
+                print("Have you updated your DAVAI-tests repository (command: davai-update) ?")
                 raise
 
     def _set_tasks(self, take_from_remote='origin'):

@@ -149,16 +149,16 @@ To be cloned from \texttt{github.com/ACCORD-NWP/IAL.git} when available...
 
 \subsection{Install DAVAÏ environment and set your preferences \label{sect:davai_install}}
 
-The tests templates and config files are versioned using Git, so that we can have different versions of the tests according to the version of the IAL that we are testing. The user therefore has to clone the \texttt{davai-env} repository (rather than copy) to be able to switch from a version to another.\\
+The tests templates and config files are versioned using Git, so that we can have different versions of the tests according to the version of the IAL that we are testing. The user therefore has to clone the \texttt{DAVAI-env} repository (rather than copy) to be able to switch from a version to another.\\
 
-The \texttt{davai-env} repository contains the DAVAÏ command-lines, some inner utilities, the documentation, and the nested repository \texttt{davai-tests}. This latter contains the tests templates \& wrappers and config files, and it is versioned innerly to the nested repository, because changes to the tests are more frequent than to the rest of \texttt{davai-env}.\\
+The \texttt{DAVAI-env} repository contains the DAVAÏ command-lines, some inner utilities, the documentation, and the nested repository \texttt{DAVAI-tests}. This latter contains the tests templates \& wrappers and config files, and it is versioned innerly to the nested repository, because changes to the tests are more frequent than to the rest of \texttt{DAVAI-env}.\\
 
 \noindent To install it:
 \begin{enumerate}[label=(D.\arabic*)]
  \item go to the directory where you want to install it (e.g. \texttt{$\sim$/repositories}) and\\
-       clone the \texttt{davai-env} repository:\\
-       \texttt{git clone https://github.com/ACCORD-NWP/davai-env.git}\\
-       then go in the newly cloned directory \texttt{davai-env}
+       clone the \texttt{DAVAI-env} repository:\\
+       \texttt{git clone https://github.com/ACCORD-NWP/DAVAI-env.git}\\
+       then go in the newly cloned directory \texttt{DAVAI-env}
  \item if you want to customize your install and default values for DAVAÏ options and packages, you can do so following the instructions given by:\\
        \texttt{davai-init -s}\\
        In particular, you can set the path to your IAL repository in the user config.

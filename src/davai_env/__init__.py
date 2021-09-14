@@ -21,7 +21,7 @@ davai_xp_counter = os.path.join(os.environ['HOME'], '.davairc', '.last_xp')
 
 # repo
 this_repo = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-davai_tests = 'davai-tests'
+davai_tests = 'DAVAI-tests'
 this_repo_tests = os.path.join(this_repo, davai_tests)
 
 def guess_host():
@@ -116,7 +116,7 @@ def init():
 
 
 def update():
-    """Update davai-env and davai-tests repositories using `git fetch`."""
+    """Update DAVAI-env and DAVAI-tests repositories using `git fetch`."""
     print("Update {} ...".format(this_repo_tests))
     subprocess.check_call(['git', 'fetch', 'origin'], cwd=this_repo_tests)
     print("Update {} ...".format(this_repo))

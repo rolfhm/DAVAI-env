@@ -79,7 +79,7 @@ if __name__ == '__main__':
                         help="Comment about experiment. Defaults to IAL_git_ref.")
     parser.add_argument('--remote',
                         default='origin',
-                        help="to pick davai-tests version from a remote in case of a branch;" +
+                        help="to pick DAVAI-tests version from a remote in case of a branch;" +
                              " None, False or local to pick local branch.")
     parser.add_argument('--host',
                         default=DAVAI_HOST,

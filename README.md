@@ -5,9 +5,9 @@ This project contains:
 * the DAVAI command-line tools, esp. to create DAVAI experiments,
 * the configuration files to handle general preferences and machine-dependent installation,
 * a tool for DAVAI developers to move shelves around,
-* and it embarks the sub-project `davai-tests` that contains the tests templates.
+* and it embarks the sub-project `DAVAI-tests` that contains the tests templates.
 
-Although versioned independantly, the `davai-tests` subproject is embedded here in order
+Although versioned independantly, the `DAVAI-tests` subproject is embedded here in order
 to be able to switch the tests version at time of creation of a DAVAI experiment.
 
 Installation
@@ -15,7 +15,7 @@ Installation
 
 1. assert to have a recent version of git:
    (e.g. on belenos `module load git`)
-2. clone this repository (`git clone https://github.com/ACCORD-NWP/davai-env.git`)
+2. clone this repository (`git clone https://github.com/ACCORD-NWP/DAVAI-env.git`)
 3. initialize your DAVAI environment: `make init` (or `bin/davai-init`)
 4. `export PATH=$PATH:~/.davairc/bin`
    (preferably in your `.bash_profile`)
