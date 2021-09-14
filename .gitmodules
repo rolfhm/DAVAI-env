@@ -1,0 +1,3 @@
+[submodule "DAVAI-tests"]
+	path = DAVAI-tests
+	url = https://github.com/ACCORD-NWP/DAVAI-tests.git
