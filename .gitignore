@@ -6,3 +6,11 @@
 
 # locals
 TODO
+
+# doc tex
+doc/*/*/*.pdf
+doc/*/*/*.aux
+doc/*/*/*.log
+doc/*/*/*.out
+doc/*/*/*.toc
+doc/*/*/*.synctex.gz

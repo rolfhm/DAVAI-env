@@ -2,7 +2,7 @@ DAVAI environment & interface
 =============================
 
 This project contains:
-* the command-line tool to initialize one's DAVAI environment and to create DAVAI experiments,
+* the DAVAI command-line tools, esp. to create DAVAI experiments,
 * the configuration files to handle general preferences and machine-dependent installation,
 * a tool for DAVAI developers to move shelves around,
 * and it embarks the sub-project `davai-tests` that contains the tests templates.
@@ -15,7 +15,7 @@ Installation
 
 1. assert to have a recent version of git:
    (e.g. on belenos `module load git`)
-2. clone this repository (`git clone https://github.com/AlexandreMary/davai-env.git`)
+2. clone this repository (`git clone https://github.com/ACCORD-NWP/davai-env.git`)
 3. initialize your DAVAI environment: `make init` (or `bin/davai-init`)
 4. `export PATH=$PATH:~/.davairc/bin`
    (preferably in your `.bash_profile`)
