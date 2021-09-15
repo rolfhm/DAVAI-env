@@ -105,10 +105,14 @@ class AnXP(object):
     @classmethod
     def set_tests_version(cls, gitref, take_from_remote='origin'):
         """Check that requested tests version exists, and switch to it."""
+        remote_gitref = '{}/{}'.format(take_from_remote, gitref)
         branches = subprocess.check_output(['git', 'branch'],
                                            cwd=this_repo_tests, stderr=None).decode('utf-8').split('\n')
-        head_branch = [line.strip() for line in branches if line.startswith('*')][0][2:]
-        if head_branch != gitref or (head_branch == gitref and take_from_remote):
+        head = [line.strip() for line in branches if line.startswith('*')][0][2:]
+        detached = re.match('\(HEAD detached at (?P<ref>.*)\)$', head)
+        if detached:
+            head = detached.group('ref')
+        if (head != gitref and head != remote_gitref) or (head == gitref and take_from_remote):
             # determine if required tests version is a branch or not
             try:
                 # A: is it a local branch ?
@@ -133,14 +137,14 @@ class AnXP(object):
                         print("'{}' is not known in refs/remotes/{}".format(gitref, take_from_remote))
                     else:
                         # B.yes: remote branch only
-                        gitref = '/'.join([take_from_remote, gitref])
+                        gitref = remote_gitref
                         print("'{}' taken from remote '{}'".format(gitref, take_from_remote))
             else:
                 # A.yes: this is a local branch, do we take it from remote or local ?
                 if take_from_remote:
-                    gitref = '/'.join([take_from_remote, gitref])
+                    gitref = remote_gitref
             # remote question has been sorted
-            print("Switch DAVAI-tests repo from current '{}' to '{}'".format(head_branch, gitref))
+            print("Switch DAVAI-tests repo from current HEAD '{}' to '{}'".format(head, gitref))
             try:
                 subprocess.check_call(['git', 'checkout', gitref], cwd=this_repo_tests)
             except subprocess.CalledProcessError:
@@ -164,6 +168,7 @@ class AnXP(object):
                             for k in
                             ('IAL_git_ref', 'IAL_repository', 'usecase', 'comment', 'ref_xpid')}
         # and replace:
+        print("------------------------------------")
         print("Config setting ({}/{}) :".format(self.xpid, self.XP_config_file))
         # (here we do not use ConfigParser to keep the comments)
         with io.open(self.XP_config_file, 'r') as f:
@@ -179,6 +184,7 @@ class AnXP(object):
                         print(" -> {}".format(config[i].strip()))
         with io.open(self.XP_config_file, 'w') as f:
             f.writelines(config)
+        print("------------------------------------")
 
     def _set_runs(self):
         """Set run-wrapping scripts."""
@@ -207,5 +213,5 @@ class AnXP(object):
         print("* XP path:", self.XP_path)
         print("=> Now go to the XP path above and:")
         print("* if necessary, tune experiment in {}".format(self.XP_config_file))
-        print("* launch using: ./run.sh")
+        print("* launch using: ./RUN_XP.sh")
         print("------------------------------------")

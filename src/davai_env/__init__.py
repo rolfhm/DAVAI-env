@@ -83,8 +83,10 @@ def init():
     Initialize Davai env for user.
     """
     # Initialize submodules ifneedbe
+    print("Initialize/update submodules...")
     subprocess.check_call(['git', 'submodule', 'update', '--init'], cwd=this_repo)
     # Setup home
+    print("Setup DAVAI home directory...")
     for d in ('davai_home', 'experiments', 'logs'):
         p = expandpath(config.get('paths', d))
         if os.path.exists(p):
@@ -95,12 +97,13 @@ def init():
                 raise ValueError("config[paths][{}] is not expandable : '{}'".format(d, p))
             os.makedirs(p)
     # set rc
+    print("Setup {} ...".format(davai_rc))
     if not os.path.exists(davai_rc):
         os.makedirs(davai_rc)
-    # link repo (to have command line tools in PATH)
+    # link bin (to have command line tools in PATH)
     link = os.path.join(davai_rc, 'bin')
     this_repo_bin = os.path.join(this_repo, 'bin')
-    if os.path.exists(link):
+    if os.path.exists(link) or os.path.islink(link):
         overwrite = input("Relink '{}' to '{}' ? (y/n) : ".format(link, this_repo_bin)) in ('y', 'Y')
         if overwrite:
             os.unlink(link)
@@ -111,8 +114,8 @@ def init():
         os.symlink(this_repo_bin, link)
         print("To finalize setup, please export and/or copy to .bash_profile:")
         print("export PATH=$PATH:{}".format(link))
-    print("DAVAI initialization completed.")
     print("------------------------------")
+    print("DAVAI initialization completed.")
 
 
 def update():
