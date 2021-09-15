@@ -196,10 +196,10 @@ The \texttt{davai-prep\_xp} command-line prepares a ``testing experiment'' direc
 \begin{itemize}
  \item \texttt{conf/davai\_nrv.ini} : config file, containing parameters such as the git reference to test, davai options, historisations of input resources to use, tunings of tests (e.g. the input obs files to take into account) and profiles of jobs
  \item \texttt{tasks/} : templates of single tasks and jobs
- \item \texttt{RUN\_XP.sh} : wrapper to \texttt{1.setup\_ciboulai.sh $\rightarrow$ 2.packbuild.sh $\rightarrow$ 3.tests.sh}
- \item \texttt{1.setup\_ciboulai.sh} : (re-)initialize the experiment in ciboulai dashboard
- \item \texttt{2.packbuild.sh} : get source code (branch), make a gmkpack pack with it, compile and link executables (and wait for them)
- \item \texttt{3.tests.sh} : build the tests and run them through the jobs scheduler
+ \item \texttt{RUN\_XP.sh} : wrapper to \texttt{0.setup\_ciboulai.sh $\rightarrow$ 1.packbuild.sh $\rightarrow$ 2.tests.sh}
+ \item \texttt{0.setup\_ciboulai.sh} : (re-)initialize the experiment in ciboulai dashboard
+ \item \texttt{1.packbuild.sh} : get source code (branch), make a gmkpack pack with it, compile and link executables (and wait for them)
+ \item \texttt{2.tests.sh} : build the tests and run them through the jobs scheduler
  \item links to the python packages that are used by the scripts (\texttt{vortex}, \texttt{epygram}, \texttt{ial\_build}, \texttt{ial\_expertise})
  \item a \texttt{logs} directory/link will appear after the first execution, containing log files of each job.
 \end{itemize}
@@ -262,13 +262,13 @@ The 2 tasks in the \texttt{packbuild} job are respectively in charge of:
 \begin{enumerate}[label=\arabic*.]
   \item implement corrections in the branch (commited or not)
   \item in \texttt{conf/davai\_*.ini}, section \texttt{[gitref2pack]}, switch key \texttt{preexisting\_pack = True}, so that the pack does not need to be re-created, but only re-populated (the key being \texttt{False} is a protection against unhappy overwrites of existing packs)
-  \item re-run \texttt{./2.packbuild.sh} and then if build successful \texttt{./3.tests.sh}
+  \item re-run \texttt{./1.packbuild.sh} and then if build successful \texttt{./2.tests.sh}
  \end{enumerate}
 
 
 \subsection{Re-run a test}
 
-Jobs launching is gathered in a shell wrapper named \texttt{3.tests.sh}.
+Jobs launching is gathered in a shell wrapper named \texttt{2.tests.sh}.
 In this wrapper, the user can find the command-lines that run the jobs, and that can be ran independantly.
 
 Some tests are gathered together within a single job. There are 2 reasons for that: if they are an instance of a loop (e.g. same test on different obstypes, or different geometries), or if they have a flow-dependancy with an upstream/downstream test (e.g. bator, screening and minimization).
@@ -277,9 +277,9 @@ When a test fails and the user wants to re-run it, it is possible to do so witho
 
 \begin{itemize}
  \item To re-run a single job:\\
-       $\rightarrow$ open the \texttt{3.tests.sh} wrapper, identify the job of interest, and copy-paste-run its command-line
+       $\rightarrow$ open the \texttt{2.tests.sh} wrapper, identify the job of interest, and copy-paste-run its command-line
  \item It is also possible to de-activate only the jobs that are successful to re-run all the others:\\
-       $\rightarrow$ open the wrapper and comment (\texttt{\#}) the unnecessary jobs, then re-run \texttt{./3.tests.sh}
+       $\rightarrow$ open the wrapper and comment (\texttt{\#}) the unnecessary jobs, then re-run \texttt{./2.tests.sh}
  \item To re-run a single test from a multi-tests job without re-runnning its job-mates, it is also possible to deactivate the other tests of the job\footnote{including upstream tasks that produce flow-resources for the targeted test, as long as the resources stay in cache}:
        \begin{itemize}[label=$\rightarrow$]
         \item \textbf{loops:} open config file \texttt{conf/davai\_*.ini}, and in the section corresponding to the job or family, the loops can be found as \texttt{list(...)}, e.g. \texttt{obstypes}, \texttt{rundates} or \texttt{geometrys}. Items in the list can be reduced to the only required ones (keeping a final \texttt{","} if only one item remains).
@@ -309,12 +309,12 @@ To investigate a non-reproducibility or crash issue, the \texttt{ELP} usecase of
 \begin{itemize}
  \item create a new experiment with the same arguments but \texttt{-u ELP}
  \item go to the new experiment
- \item if the executables are already built, you can skip the \texttt{\textit{build}} : just run \texttt{./1.ciboulai\_setup.sh} and then directly \texttt{./3.tests.sh} or just a subset of jobs therein.
+ \item if the executables are already built, you can skip the \texttt{\textit{build}} : just run \texttt{./1.ciboulai\_setup.sh} and then directly \texttt{./2.tests.sh} or just a subset of jobs therein.
 \end{itemize}
 
 \noindent Instead of 40$^+$ tests, the ELP mode will provide hundreds of more elementary and focused tests. For instance, if you had a problem in the 4DVar minimization, you can run the 3 observation operators tests, observation by observation, and/or a screening, and/or a 3DVar or 4DVar single-obs minimization, in order to understand if the problem is in a specific observation operator (which obs type ?), in its direct, TL or AD version, or in the Variational algorithm, or in the preceding screening, and so on...
 
-The user may want, at some point, to run only a subset of this very large set of tests. In this case, simply open the \texttt{3.tests.sh} and comment/decomment (\texttt{\#}) the launch of the various jobs.
+The user may want, at some point, to run only a subset of this very large set of tests. In this case, simply open the \texttt{2.tests.sh} and comment/decomment (\texttt{\#}) the launch of the various jobs.
 To reduce the tests that are innerly looped (e.g. the loop on observation types within the \texttt{*\_\_obstype} jobs), open config file \texttt{conf/davai\_elp.ini}, look for the section named after job name and select the obstype(s) to be kept only in list.
 
 
