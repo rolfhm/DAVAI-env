@@ -38,9 +38,9 @@ def guess_host():
                 host = h[:-len('_re_pattern')]  # h is '{host}_re_pattern'
                 break
     if not host:
-        raise ValueError("Couldn't find 'host' in [hosts] section of config files ('{}', '{}'), " +
-                         "nor guess from hostname ({}) and keys '*host*_re_pattern' " +
-                         "in section 'hosts' of same config files.".format(
+        raise ValueError(("Couldn't find 'host' in [hosts] section of config files ('{}', '{}'), " +
+                          "nor guess from hostname ({}) and keys '*host*_re_pattern' " +
+                          "in section 'hosts' of same config files.").format(
             user_config_file, base_config_file, socket_hostname))
     return host
 
@@ -112,7 +112,7 @@ def init():
             print("Warning: initialization might not be consistent with existing link !")
     if link:
         os.symlink(this_repo_bin, link)
-        print("To finalize setup, please export and/or copy to .bash_profile:")
+        print("To finalize setup, please export and/or copy to ~/.bash_profile:")
         print("export PATH=$PATH:{}".format(link))
     print("------------------------------")
     print("DAVAI initialization completed.")
