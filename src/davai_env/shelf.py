@@ -12,15 +12,15 @@ import tempfile
 import subprocess
 import tarfile
 
-from . import config, guess_host
+from . import config, guess_host, expandpath
 
 # set variables
 host = guess_host()
 vortex_cache_config = os.path.join(config['packages']['vortex'],
                                    'conf', 'cache-{}.ini'.format(host))
 cache_config = configparser.ConfigParser()
-cache_config.read(vortex_cache_config)
-cache_config.read(cache_config['marketplace-vortex']['externalconf_davai_path'])
+cache_config.read(expandpath(vortex_cache_config))
+cache_config.read(expandpath(cache_config['marketplace-vortex']['externalconf_davai_path']))
 marketplacecache_rootdir = cache_config['marketplace_xp']['rootdir']
 
 
