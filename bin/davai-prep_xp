@@ -23,7 +23,7 @@ def main(tests_version,
          IAL_git_ref,
          IAL_repository=config['paths']['IAL_repository'],
          usecase=config['defaults']['usecase'],
-         ref_xpid='NONE',
+         ref_xpid=None,
          comment=None,
          take_tests_version_from_remote='origin',
          host=DAVAI_HOST):
@@ -72,8 +72,9 @@ if __name__ == '__main__':
                         help="Usecase: NRV (restrained set of canonical tests) or ELP (extended elementary tests); " +
                              "More (PC, ...) to come. Defaults to: '{}'".format(config['defaults']['usecase']))
     parser.add_argument('-r', '--ref_xpid',
-                        default='NONE',
-                        help="Reference XPID, to compare results to")
+                        default=None,
+                        help="Reference XPID, to compare results to. Defaults taken in config file; " +
+                             "SELF is the experiment itself.")
     parser.add_argument('-c', '--comment',
                         default=None,
                         help="Comment about experiment. Defaults to IAL_git_ref.")

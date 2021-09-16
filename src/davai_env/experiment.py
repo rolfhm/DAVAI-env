@@ -27,7 +27,7 @@ class AnXP(object):
                  tests_version,
                  IAL_repository=config['paths']['IAL_repository'],
                  usecase=config['defaults']['usecase'],
-                 ref_xpid='NONE',
+                 ref_xpid=None,
                  comment=None,
                  host=guess_host()):
         """
@@ -179,7 +179,7 @@ class AnXP(object):
                     if k == 'IAL_repository': v = expandpath(v)
                     pattern = '(?P<k>{}\s*=).*\n'.format(k)
                     match = re.match(pattern, line)
-                    if match:
+                    if match and v is not None:
                         config[i] = match.group('k') + ' {}\n'.format(v)
                         print(" -> {}".format(config[i].strip()))
         with io.open(self.XP_config_file, 'w') as f:
