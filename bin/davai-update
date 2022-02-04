@@ -19,7 +19,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Update your DAVAI environment and tests versionning" +
                                                  " DAVAI-env|DAVAI-tests repositories (git fetch).")
     parser.add_argument('-p', '--pull',
-                        description="Pull repository (`git pull origin`)",
+                        help="Pull repository (`git pull origin`)",
                         default=False,
                         action='store_true')
     args = parser.parse_args()
