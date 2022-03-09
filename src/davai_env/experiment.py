@@ -16,7 +16,7 @@ import io
 import re
 import subprocess
 
-from . import this_repo_tests, config
+from . import config, DAVAI_TESTS_REPO
 from . import guess_host, next_xp_num, expandpath
 
 
@@ -63,7 +63,7 @@ class AnXP(object):
     @property
     def host_XP_config_file(self):
         """Relative path of XP config file, according to host."""
-        return os.path.join(this_repo_tests, 'conf', '{}.ini'.format(self.host))
+        return os.path.join(DAVAI_TESTS_REPO, 'conf', '{}.ini'.format(self.host))
 
     @property
     def XP_config_file(self):
@@ -107,7 +107,7 @@ class AnXP(object):
         """Check that requested tests version exists, and switch to it."""
         remote_gitref = '{}/{}'.format(take_from_remote, gitref)
         branches = subprocess.check_output(['git', 'branch'],
-                                           cwd=this_repo_tests, stderr=None).decode('utf-8').split('\n')
+                                           cwd=DAVAI_TESTS_REPO, stderr=None).decode('utf-8').split('\n')
         head = [line.strip() for line in branches if line.startswith('*')][0][2:]
         detached = re.match('\(HEAD detached at (?P<ref>.*)\)$', head)
         if detached:
@@ -118,7 +118,7 @@ class AnXP(object):
                 # A: is it a local branch ?
                 cmd = ['git', 'show-ref', '--verify', 'refs/heads/{}'.format(gitref)]
                 subprocess.check_call(cmd,
-                                      cwd=this_repo_tests,
+                                      cwd=DAVAI_TESTS_REPO,
                                       stderr=subprocess.DEVNULL,
                                       stdout=subprocess.DEVNULL)
             except subprocess.CalledProcessError:
@@ -129,7 +129,7 @@ class AnXP(object):
                     cmd = ['git', 'show-ref', '--verify', 'refs/remotes/{}/{}'.format(take_from_remote, gitref)]
                     try:
                         subprocess.check_call(cmd,
-                                              cwd=this_repo_tests,
+                                              cwd=DAVAI_TESTS_REPO,
                                               stderr=subprocess.DEVNULL,
                                               stdout=subprocess.DEVNULL)
                     except subprocess.CalledProcessError:
@@ -146,7 +146,7 @@ class AnXP(object):
             # remote question has been sorted
             print("Switch DAVAI-tests repo from current HEAD '{}' to '{}'".format(head, gitref))
             try:
-                subprocess.check_call(['git', 'checkout', gitref], cwd=this_repo_tests)
+                subprocess.check_call(['git', 'checkout', gitref], cwd=DAVAI_TESTS_REPO)
             except subprocess.CalledProcessError:
                 print("Have you updated your DAVAI-tests repository (command: davai-update) ?")
                 raise
@@ -155,7 +155,7 @@ class AnXP(object):
         """Set tasks (templates)."""
         self.set_tests_version(self.tests_version, take_from_remote=take_from_remote)
         # and copy/link
-        self._set(os.path.join(this_repo_tests, 'src', 'tasks'),
+        self._set(os.path.join(DAVAI_TESTS_REPO, 'src', 'tasks'),
                   'tasks')
 
     def _set_conf(self):
@@ -192,13 +192,13 @@ class AnXP(object):
         if self.usecase == 'ELP':
             runs.append('NRV_tests.sh')
         for r in runs:
-            self._set(os.path.join(this_repo_tests, 'src', 'runs', r), r)
-        self._set(os.path.join(this_repo_tests, 'src', 'runs', '{}_tests.sh'.format(self.usecase)),
+            self._set(os.path.join(DAVAI_TESTS_REPO, 'src', 'runs', r), r)
+        self._set(os.path.join(DAVAI_TESTS_REPO, 'src', 'runs', '{}_tests.sh'.format(self.usecase)),
                   '2.tests.sh')
 
     def _link_packages(self):
         """Link necessary packages in XP."""
-        os.symlink(os.path.join(this_repo_tests, 'src', 'davai_taskutil'), 'davai_taskutil')
+        os.symlink(os.path.join(DAVAI_TESTS_REPO, 'src', 'davai_taskutil'), 'davai_taskutil')
         for package, path in self.packages.items():
             os.symlink(expandpath(path), package)
 
