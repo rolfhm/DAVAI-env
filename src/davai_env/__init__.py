@@ -129,3 +129,8 @@ def update(pull=False):
     if pull:
         subprocess.check_call(['git', 'pull', 'origin'], cwd=this_repo)
     subprocess.check_call(['git', 'submodule', 'update'], cwd=this_repo)
+
+
+def default_mtooldir():
+    MTOOLDIR = expandpath(config['paths'].get('mtooldir'))
+    return MTOOLDIR

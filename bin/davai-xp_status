@@ -15,18 +15,21 @@ import json
 # Automatically set the python path for davai_cmd
 repo_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, os.path.join(repo_path, 'src'))
-from davai_env import config, expandpath
+from davai_env import config, expandpath, default_mtooldir
 # vortex/davai
-MTOOLDIR = expandpath(config['paths'].get('mtooldir', None))  # FIXME: dirty
-if MTOOLDIR:
-    os.environ['MTOOLDIR'] = MTOOLDIR
+# First we need MTOOLDIR set up for retrieving paths
+if not os.environ.get('MTOOLDIR', None):
+    MTOOLDIR = default_mtooldir()
+    if MTOOLDIR:
+        os.environ['MTOOLDIR'] = MTOOLDIR
+# Then set Vortex in path
 vortexpath = expandpath(config['packages']['vortex'])
 sys.path.extend([vortexpath, os.path.join(vortexpath, 'src'), os.path.join(vortexpath, 'site')])
 import vortex
 import davai
 
 
-def main():  # TODO: inner part moved to vortex (davai/util/SummariesStack.tasks_status())
+def main(task=None):
     # guess context
     pwd = os.getcwd()
     vconf = os.path.basename(pwd)
@@ -37,42 +40,21 @@ def main():  # TODO: inner part moved to vortex (davai/util/SummariesStack.tasks
     msg = "Current directory does not look like a Davai experiment: "
     assert vapp == 'davai', msg + "Directory n-1 should be 'davai'"
     assert os.path.exists(configfile), msg + "Config file '{}' not found".format(configfile)
-    assert re.match('\d{4}-.+@\w+', xpid), msg + "Directory n-1 should look like 0057-branch@user"
-    # parse task summaries
+    assert re.match('\d+-.+@\w+', xpid), msg + "Directory n-1 should look like 0057-branch@user"
+    # process stack or task
     stack = davai.util.SummariesStack(vortex.ticket(), vapp, vconf, xpid)
-    XP_status = {}
-    for f in sorted(stack.cache.list('')):
-        #print(f)
-        match = stack._re_tasksummary.match(f)
-        if match:
-            task = match.group('task')
-            with open(stack.cache.fullpath(f), 'r') as _f:
-                ts = json.load(_f)
-            scope = match.group('scope')
-            if scope == 'consistency':
-                continue
-            else:
-                status = XP_status.get(task, {})
-                if scope == 'itself':
-                    status['Status'] = ts['Status']['short']
-                elif scope == 'continuity':
-                    status['continuity'] = ts['comparisonStatus']['short']
-                XP_status[task] = status
-    fmt = '{:<60} {:10} {:>10}'
-    print("In summaries stack:", stack.cache.fullpath(''))
-    print("-"*82)
-    print(fmt.format("Task", "Status", "continuity"))
-    print("-"*82)
-    for task, status in XP_status.items():
-        print(fmt.format(task, status['Status'], status.get('continuity', '-')))
-    print("-"*82)
-
-
+    if task is None:
+        stack.tasks_status(print_it=True)
+    else:
+        stack.task_summary_fullpath(task)
 
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Check status of current experiment. Must be called from the XP directory.')
+    parser.add_argument('-t', '--task',
+                        default=None,
+                        help="Specify a task name to get the filepath to its detailed summary.")
     args = parser.parse_args()
 
-    main()
+    main(args.task)
