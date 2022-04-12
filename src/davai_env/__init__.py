@@ -18,6 +18,8 @@ __version__ = '1.0.3'
 # fixed parameters
 davai_rc = os.path.join(os.environ['HOME'], '.davairc')
 davai_xp_counter = os.path.join(os.environ['HOME'], '.davairc', '.last_xp')
+davai_xpid_syntax = 'dv-{xpid_num:04}@{user}'
+davai_xpid_re = re.compile('^' + davai_xpid_syntax.replace('{xpid_num:04}', '\d+').replace('{user}', '\w+') + '$')
 
 # repo
 this_repo = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))

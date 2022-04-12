@@ -15,7 +15,7 @@ import json
 # Automatically set the python path for davai_cmd
 repo_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, os.path.join(repo_path, 'src'))
-from davai_env import config, expandpath, default_mtooldir
+from davai_env import config, expandpath, default_mtooldir, davai_xpid_syntax, davai_xpid_re
 # vortex/davai
 # First we need MTOOLDIR set up for retrieving paths
 if not os.environ.get('MTOOLDIR', None):
@@ -38,9 +38,10 @@ def main(task=None):
     configfile = 'conf/davai_{}.ini'.format(vconf)
     # check that we are in a Davai experiment
     msg = "Current directory does not look like a Davai experiment: "
-    assert vapp == 'davai', msg + "Directory n-1 should be 'davai'"
+    assert vapp == 'davai', msg + "Directory pwd-1 should be 'davai'"
     assert os.path.exists(configfile), msg + "Config file '{}' not found".format(configfile)
-    assert re.match('\d+-.+@\w+', xpid), msg + "Directory n-1 should look like 0057-branch@user"
+    assert davai_xpid_re.match(xpid) or re.match('\d+-.+@\w+', xpid), \
+            msg + "Directory pwd-2 should look like " + davai_xpid_syntax + " or 0057-branch@user (old syntax)"
     # process stack or task
     stack = davai.util.SummariesStack(vortex.ticket(), vapp, vconf, xpid)
     if task is None:
