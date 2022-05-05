@@ -52,7 +52,11 @@ def main(task=None):
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description='Check status of current experiment. Must be called from the XP directory.')
+    parser = argparse.ArgumentParser(description=' '.join(['Check status of current experiment.',
+                                                           'Must be called from the XP directory.',
+                                                           'Works with tasks summaries in cache,',
+                                                           'hence files may be missing if used too long after',
+                                                           'the experiment has been run.']))
     parser.add_argument('-t', '--task',
                         default=None,
                         help="Specify a task name to get the filepath to its detailed summary.")

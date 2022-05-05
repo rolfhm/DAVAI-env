@@ -16,7 +16,7 @@ import io
 import re
 import subprocess
 
-from . import config, DAVAI_TESTS_REPO
+from . import config, DAVAI_TESTS_REPO, davai_xpid_syntax
 from . import guess_host, next_xp_num, expandpath
 
 
