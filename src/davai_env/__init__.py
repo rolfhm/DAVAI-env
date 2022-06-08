@@ -13,9 +13,8 @@ import io
 import copy
 import subprocess
 
-__version__ = '1.0.4'
-__version__ = io.open(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))),
-                                   'VERSION'), 'r').read().strip()
+package_rootdir = os.path.dirname(os.path.dirname(os.path.realpath(__path__[0])))  # realpath to resolve symlinks
+__version__ = io.open(os.path.join(package_rootdir, 'VERSION'), 'r').read().strip()
 
 # fixed parameters
 davai_rc = os.path.join(os.environ['HOME'], '.davairc')
