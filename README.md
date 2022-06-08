@@ -9,16 +9,14 @@ This project contains:
 Installation
 ------------
 
-1. assert to have a recent version of git:
-   (e.g. on belenos `module load git`)
-2. clone this repository (`git clone https://github.com/ACCORD-NWP/DAVAI-env.git`)
-3. initialize your DAVAI environment: `make init` (or `bin/davai-init`) ---
+1. clone this repository (`git clone https://github.com/ACCORD-NWP/DAVAI-env.git`)
+2. initialize your DAVAI environment: `make init` (or `bin/davai-init`) ---
    Note that this will also clone the [DAVAI-tests](https://github.com/ACCORD-NWP/DAVAI-tests) repository 
-4. `export PATH=$PATH:~/.davairc/bin`
+3. `export PATH=$PATH:~/.davairc/bin`
    (preferably in your `.bash_profile`)
 
-* Local complements:
-  * [`belenos`@MF](doc/belenos.md)
+Local complements:
+* [`belenos`@MF](doc/belenos.md)
 
 Dependencies
 ------------
