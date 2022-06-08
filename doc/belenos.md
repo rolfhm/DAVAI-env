@@ -32,4 +32,4 @@ Installation
   `~mary/public/EPyGrAM/stable/_install/setup_epygram.py -v`\
   then to avoid a matplotlib/display issue, set:\
   `backend : Agg`\
-  in `~/.config/matplotlib/matplotlibrc`\
+  in `~/.config/matplotlib/matplotlibrc`
