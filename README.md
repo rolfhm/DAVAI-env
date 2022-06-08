@@ -17,6 +17,9 @@ Installation
 4. `export PATH=$PATH:~/.davairc/bin`
    (preferably in your `.bash_profile`)
 
+* Local complements:
+  * [`belenos`@MF](doc/belenos.md)
+
 Dependencies
 ------------
 
