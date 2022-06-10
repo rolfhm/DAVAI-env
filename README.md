@@ -36,7 +36,8 @@ After installation, to run an experiment (pre-bundle version):
 1. prepare an experiment based on version `DV48T2` of the tests, i.e. with a configuration of the tests suited for code
    based on `CY48T2` and comparing results to a reference being `CY48T2`:\
    `davai-prep_xp <IAL_git_reference> -v DV48T2 [-h]`\
-   You may need to specify the path to your IAL repository by argument.
+   You may need to specify the path to your IAL repository by argument.\
+   To be sure of the tests version to use, cf. [DAVAI-tests](https://github.com/ACCORD-NWP/DAVAI-tests#readme) README.md
 2. go to the displayed directory of the experiment (ending with `.../dv-xxxx@user/davai/nrv/`)
 3. run the tests: `./RUN_XP.sh`\
    This script runs the 3 subscripts `0.setup_ciboulai.sh`, `1.packbuild.sh`, `2.tests.sh` in a sequence.
