@@ -18,8 +18,7 @@ Installation
    `ftmotpasse -h hendrix.meteo.fr -u <your_user>`\
    (same)
 4. Configure Git proxy certificate info (conveniently in your .bash_profile):\
-   `export GIT_SSL_CAINFO=~mary/public/proxy_mf_cert.pem`\
-   (you may want to copy the certificate on your home)
+   `export GIT_SSL_CAINFO=/opt/softs/certificats/proxy1.pem`
 5. Ensure SSH connectivity between compute and transfer nodes, if not already done:\
    `cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys`
 6. Set a token for https connexion with github:\

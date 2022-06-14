@@ -22,6 +22,10 @@ Dependencies
 ------------
 
 DAVAI tests require the following packages:
+* `ecbundle`: for the bundle version, to manage bundles: `pip install --user ecbundle`
+
+and
+
 * `ial_build`: wrappers to build IAL executables
 * `ial_expertise`: to analyse the outputs of the tests
 * Vortex project and its sub-packages
@@ -31,7 +35,9 @@ These packages are already pre-installed on MF's HPC, nothing to do.
 Get started
 -----------
 
-After installation, to run an experiment (pre-bundle version):
+Prepare an experiment and run the tests !
+
+### Pre-bundle version
 
 1. prepare an experiment based on version `DV48T2` of the tests, i.e. with a configuration of the tests suited for code
    based on `CY48T2` and comparing results to a reference being `CY48T2`:\
@@ -45,6 +51,10 @@ After installation, to run an experiment (pre-bundle version):
    * `1.packbuild.sh` prepares a *gmkpack* pack with the source code of the provided Git reference, compiles the sources
      and build executables.
    * `2.tests.sh` runs the tests in semi-parallel, through job scheduler.
+
+### Bundle version
+
+tbc... 
 
 First tips
 ----------
