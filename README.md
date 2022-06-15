@@ -22,17 +22,7 @@ Dependencies
 ------------
 
 DAVAI tests require the following packages:
-* `ecbundle`: for the bundle version, to manage bundles: e.g.
-  ```
-  cd ~/repositories
-  git clone https://git.ecmwf.int/scm/ecsdk/ecbundle.git
-  cd ecbundle
-  git checkout develop
-  export PYTHONPATH=$PYTHONPATH:~repositories/ecbundle
-  ```
-
-and
-
+* `ecbundle`: for the bundle version, to manage bundles
 * `ial_build`: wrappers to build IAL executables
 * `ial_expertise`: to analyse the outputs of the tests
 * Vortex project and its sub-packages
