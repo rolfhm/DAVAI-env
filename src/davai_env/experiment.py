@@ -48,7 +48,9 @@ class AnXP(object):
         self.tests_version = tests_version
         assert usecase in ('NRV', 'ELP'), "Usecase not implemented yet: " + usecase
         self.usecase = usecase
-        self.xpid = davai_xpid_syntax.format(xpid_num=next_xp_num(), user=getpass.getuser())
+        self.xpid = davai_xpid_syntax.format(xpid_num=next_xp_num(),
+                                             host=host,
+                                             user=getpass.getuser())
         self.ref_xpid = self.xpid if ref_xpid == 'SELF' else ref_xpid
         self.comment = comment if comment is not None else IAL_git_ref
         self.vconf = usecase.lower()
