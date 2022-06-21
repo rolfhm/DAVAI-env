@@ -133,7 +133,6 @@ def update(pull=False):
     subprocess.check_call(['git', 'fetch', 'origin'], cwd=this_repo)
     if pull:
         subprocess.check_call(['git', 'pull', 'origin'], cwd=this_repo)
-    subprocess.check_call(['git', 'submodule', 'update'], cwd=this_repo)
 
 
 def default_mtooldir():
