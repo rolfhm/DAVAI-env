@@ -27,8 +27,9 @@ Installation
    and generate or use an existing token in your `~/.netrc`\
    `machine github.com login <your_github_userid> password <your_token>`
 
-* And temporarily, you also need epygram:\
-  `~mary/public/EPyGrAM/stable/_install/setup_epygram.py -v`\
-  then to avoid a matplotlib/display issue, set:\
-  `backend : Agg`\
-  in `~/.config/matplotlib/matplotlibrc`
+* And for now, you also need `epygram`:
+
+  - `~mary/public/EPyGrAM/stable/_install/setup_epygram.py -v`
+  - then to avoid a matplotlib/display issue, set:\
+    `backend : Agg`\
+    in `~/.config/matplotlib/matplotlibrc`

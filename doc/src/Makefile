@@ -1,15 +1,9 @@
 
-.PHONY: doc clean clean_pdf clean_all install_guide user_guide
+.PHONY: doc clean clean_pdf clean_all user_guide
 
 .DEFAULT_GOAL := doc
 
-doc: install_guide user_guide clean
-
-# executed twice for TOC
-install_guide:
-	pdflatex Davai_Install_Guide.tex
-	pdflatex Davai_Install_Guide.tex
-	mv Davai_Install_Guide.pdf ../pdf/.
+doc: user_guide clean
 
 # executed twice for TOC
 user_guide:
