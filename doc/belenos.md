@@ -5,7 +5,7 @@ Installation
 ------------
 
 1. Load modules (conveniently in your .bash_profile):\
-   `module load python3`\
+   `module load python/3.7.6`\
    `module load git`
 2. Configure your ~/.netrc file for FTP communications with archive machine hendrix, writing in it:\
    `machine hendrix login <your_user> password <your_password>`\
