@@ -27,7 +27,7 @@ Installation
    and generate or use an existing token in your `~/.netrc`\
    `machine github.com login <your_github_userid> password <your_token>`
 
-* And for now, you also need `epygram`:
+* Optional: with a version of tests prior to `DV48T1_op0.04`, you may also need `epygram`:
 
   - `~mary/public/EPyGrAM/stable/_install/setup_epygram.py -v`
   - then to avoid a matplotlib/display issue, set:\
