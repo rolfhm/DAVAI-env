@@ -39,6 +39,9 @@ To install them on a new machine, cf. the projects' installation instructions.
 Installation
 ------------
 
+Local pre-requirements:
+* for [`belenos`@MF](doc/belenos.md)
+
 1. Clone this repository, e.g. in `~/repositories/`:\
    `git clone https://github.com/ACCORD-NWP/DAVAI-env.git`
 2. Initialize your DAVAI environment:
@@ -47,9 +50,6 @@ Installation
    - `make init` (or `bin/davai-init`) --- Note that this will also clone the _**DAVAI-tests**_ repository
 3. Get command-lines in your PATH (preferably in your `.bash_profile`):\
    `export PATH=$PATH:~/.davairc/bin`
-
-Local complements:
-* for [`belenos`@MF](doc/belenos.md)
 
 Documentation
 -------------
