@@ -74,11 +74,24 @@ For a quick start:
 1. Prepare an experiment based on version `<v>` of the tests, to validate an IAL Git reference `<r>`:\
    `davai-prep_xp <r> -v <v> [-h]`\
    (you may need to specify the path to your IAL repository by argument, cf. options with `-h`)\
-   To know what version of the tests to use, cf. [README.md in DAVAI-tests](https://github.com/ACCORD-NWP/DAVAI-tests#readme)
-2. Go to the prompted directory of the experiment (ending with `.../dv-<platform>@<user>/davai/nrv/`)
+   To know what version of the tests to use, cf. below.
+2. Go to the prompted directory of the experiment (ending with `.../dv-<nnnn>-<platform>@<user>/davai/nrv/`)
 3. Run the tests: `./RUN_XP.sh` and monitor (standard output for the build, then job scheduler).
 
 Explanations to be found in the User Guide.
+
+Tests versions and reference experiments
+----------------------------------------
+
+To be used in `davai-prep_xp -v <davai_tests_version> [-r <ref_xpid>] ...`
+
+| _What to test_ | Basis of the dev | Nominal tests version | Reference XPID |
+|:-----------------|:-----------------|:----------------------|:---------------|
+| Merge branch CY49 | `CY48T3` | `DV48T3` | (tbd) |
+| 48T3 dev branch | `mary_CY48T2_to_T3` | `dev_DV48T3` | `dv-0133-belenos@mary` |
+| Development on top of 48T2 | `CY48T2` | `dev` | `dv-0133-belenos@mary` |
+| Dble branch `gco_CY48T1_op1` | `gco_CY48T1_op1` | `dev_DV48T1_op1` | `dv-0016-belenos@moureauxm` |
+| _Development on top of_ `48T1_op0.04` | `CY48T1_op0.04` | `DV48T1_op0.04-1` | `dv-0016-belenos@moureauxm` |
 
 Lexicon
 -------
