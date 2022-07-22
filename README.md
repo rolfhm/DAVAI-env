@@ -48,8 +48,7 @@ Local pre-requirements:
    - `cd DAVAI-env`
    - if you want to inspect possible customizations: `bin/davai-init -s`
    - `make init` (or `bin/davai-init`) --- Note that this will also clone the _**DAVAI-tests**_ repository
-3. Get command-lines in your PATH (preferably in your `.bash_profile`):\
-   `export PATH=$PATH:~/.davairc/bin`
+3. Re-login or source `~/.davairc/profile` to finalize.
 
 Documentation
 -------------

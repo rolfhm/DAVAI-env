@@ -20,10 +20,13 @@ if __name__ == '__main__':
     parser.add_argument('-s', '--show_user_config_template',
                         help="Show a template of user_config.ini",
                         action='store_true')
+    parser.add_argument('-t', '--token', '--ciboulai_token',
+                        help="Set Ciboulai Token in profile/environment variable",
+                        default=None)
     args = parser.parse_args()
     if args.show_user_config_template:
         print("User config file is to be completed in : '{}'".format(user_config_file))
         print("An example can be found in templates/user_config.ini")
         exit(0)
     else:
-        init()
+        init(token=args.token)

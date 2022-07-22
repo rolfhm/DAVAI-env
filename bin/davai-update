@@ -22,5 +22,9 @@ if __name__ == '__main__':
                         help="Pull repository (`git pull origin`)",
                         default=False,
                         action='store_true')
+    parser.add_argument('-t', '--token', '--ciboulai_token',
+                        help="Set Ciboulai Token in profile/environment variable",
+                        default=None)
     args = parser.parse_args()
-    update(pull=args.pull)
+    update(pull=args.pull,
+           token=args.token)
