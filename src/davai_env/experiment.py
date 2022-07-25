@@ -27,20 +27,23 @@ class AnXP(object):
                  tests_version,
                  IAL_repository=config['paths']['IAL_repository'],
                  usecase=config['defaults']['usecase'],
+                 compiling_system=config['defaults']['compiling_system'],
                  ref_xpid=None,
                  comment=None,
-                 host=guess_host()):
+                 host=guess_host(),
+                 fly_conf_parameters=dict()):
         """
         Initialize an XP.
 
         :param IAL_git_ref: the IFS-Arpege-LAM git reference to be tested
         :param tests_version: version of the test bench to be used
         :param usecase: among NRV, ELP, PC, ...
+        :param compiling_system: the compiling system to be used, e.g. 'gmkpack'
         :param IAL_repository: path to the IAL repository in which to get **IAL_git_ref** sources
         :param comment: descriptive comment for the experiment (defaults to **IAL_git_ref**)
         :param host: name of host machine, to link necessary packages and get according config file
             (otherwise guessed)
-        :param dev_mode: to link tasks sources rather than to copy them
+        :param fly_conf_parameters: a dict of parameters to be modified on the fly in XP conf file
         """
         # initialisations
         self.IAL_git_ref = IAL_git_ref
@@ -48,6 +51,8 @@ class AnXP(object):
         self.tests_version = tests_version
         assert usecase in ('NRV', 'ELP'), "Usecase not implemented yet: " + usecase
         self.usecase = usecase
+        self.compiling_system = compiling_system
+        self.fly_conf_parameters = fly_conf_parameters
         self.xpid = davai_xpid_syntax.format(xpid_num=next_xp_num(),
                                              host=host,
                                              user=getpass.getuser())
@@ -171,7 +176,8 @@ class AnXP(object):
                     self.XP_config_file)
         to_set_in_config = {k:getattr(self, k)
                             for k in
-                            ('IAL_git_ref', 'IAL_repository', 'usecase', 'comment', 'ref_xpid')}
+                            ('IAL_git_ref', 'IAL_repository', 'usecase', 'comment', 'ref_xpid', 'compiling_system')}
+        to_set_in_config.update(self.fly_conf_parameters)
         # and replace:
         print("------------------------------------")
         print("Config setting ({}/{}) :".format(self.xpid, self.XP_config_file))
@@ -193,12 +199,14 @@ class AnXP(object):
 
     def _set_runs(self):
         """Set run-wrapping scripts."""
-        runs = ['RUN_XP.sh', '0.setup_ciboulai.sh', '1.packbuild.sh']
+        runs = ['RUN_XP.sh', '0.setup_ciboulai.sh']
         if self.usecase == 'ELP':
-            runs.append('NRV_tests.sh')
+            runs.append('2.NRV_tests.sh')
         for r in runs:
             self._set(os.path.join(DAVAI_TESTS_REPO, 'src', 'runs', r), r)
-        self._set(os.path.join(DAVAI_TESTS_REPO, 'src', 'runs', '{}_tests.sh'.format(self.usecase)),
+        self._set(os.path.join(DAVAI_TESTS_REPO, 'src', 'runs', '1.{}_build.sh'.format(self.compiling_system)),
+                  '1.build.sh')
+        self._set(os.path.join(DAVAI_TESTS_REPO, 'src', 'runs', '2.{}_tests.sh'.format(self.usecase)),
                   '2.tests.sh')
 
     def _link_packages(self):

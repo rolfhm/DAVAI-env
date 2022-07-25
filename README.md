@@ -2,85 +2,100 @@ DAVAI environment & interface
 =============================
 
 This project contains:
+
 * the DAVAI command-line tools, esp. to create DAVAI experiments,
 * the configuration files to handle general preferences and machine-dependent installation,
-* a tool for DAVAI developers to move shelves around,
+* the documentation
 
-Installation
-------------
-
-1. clone this repository (`git clone https://github.com/ACCORD-NWP/DAVAI-env.git`)
-2. initialize your DAVAI environment: `make init` (or `bin/davai-init`) ---
-   Note that this will also clone the [DAVAI-tests](https://github.com/ACCORD-NWP/DAVAI-tests) repository 
-3. `export PATH=$PATH:~/.davairc/bin`
-   (preferably in your `.bash_profile`)
-
-Local complements:
-* [`belenos`@MF](doc/belenos.md)
+Note that the core of DAVAI (tests templates, jobs sequences, config files and launching wrappers) are hosted
+separately, in the [DAVAI-tests](https://github.com/ACCORD-NWP/DAVAI-tests) repository.
 
 Dependencies
 ------------
 
-DAVAI tests require the following packages:
-* `ecbundle`: for the bundle version, to manage bundles
-* `ial_build`: wrappers to build IAL executables
-* `ial_expertise`: to analyse the outputs of the tests
-* Vortex project and its sub-packages
+DAVAI is mainly written in Python3. Make sure you have Python3.6 at least.
+It also uses Git, make sure you have a "recent enough" version of it, or some commands may not work properly.
+DAVAI works over a number of NWP packages, tools, software, that need to be installed on the machine with their own
+procedures. These include:
 
-These packages are already pre-installed on MF's HPC, nothing to do.
+* [_**Vortex**_](https://opensource.umr-cnrm.fr/projects/vortex):
+  scripting system used for the definition of tasks (resources, executables launch, ...) and the running
+  of the jobs. It embeds a number of necesary-as-well sub-packages.
+* [_**ecbundle**_](https://git.ecmwf.int/projects/ECSDK/repos/ecbundle):
+  a utility from ECMWF to gather codes from several repositories, in the required version for each,
+  based on a YAML descriptive file (called _bundle_)
+* [_**IAL-build**_](https://github.com/ACCORD-NWP/IAL-build):
+  wrappers around `git` and `gmkpack` (and eventually other building tools) to build IAL executables from Git
+* [_**IAL-expertise**_](https://github.com/ACCORD-NWP/IAL-expertise):
+  tools to analyse automatically the outputs of NWP configurations -- norms, Jo-tables, fields in FA/GRIB files, ...
+* [_**EPyGrAM**_](https://github.com/UMR-CNRM/EPyGrAM): a Python library for handling output data from the IAL models;
+  it is used here within _IAL-expertise_.
 
-Get started
+These packages may already be pre-installed on MF's HPC or other platforms where DAVAI is already ported.
+Cf. the "Local complements" in "Installation" section, in this case.
+
+To install them on a new machine, cf. the projects' installation instructions.
+
+Installation
+------------
+
+Local pre-requirements:
+* for [`belenos`@MF](doc/belenos.md)
+
+User settings:
+1. Clone this repository, e.g. in `~/repositories/`:\
+   `git clone https://github.com/ACCORD-NWP/DAVAI-env.git`
+2. Initialize your DAVAI environment:
+   - `cd DAVAI-env`
+   - if you want to inspect possible customizations: `bin/davai-init -s`
+   - `make init` (or `bin/davai-init`) --- Note that this will also clone the _**DAVAI-tests**_ repository
+3. Re-login or source `~/.davairc/profile` to finalize.
+
+Documentation
+-------------
+
+The documentation is available under `doc/` directory.
+Part of the documentation needs to be compiled from `.tex` sources, using `pdflatex`.
+To do so:
+
+* `make doc`
+
+and the generated PDF document will be found under `doc/pdf/Davai_User_Guide.pdf`.
+
+The User Guide is also available for main releases on: https://github.com/ACCORD-NWP/DAVAI-env/releases
+
+Quick start
 -----------
 
-Prepare an experiment and run the tests !
+A Tutorial is available in the User Guide (cf. above).
 
-### Pre-bundle version
+For a quick start:
 
-1. prepare an experiment based on version `DV48T2` of the tests, i.e. with a configuration of the tests suited for code
-   based on `CY48T2` and comparing results to a reference being `CY48T2`:\
-   `davai-prep_xp <IAL_git_reference> -v DV48T2 [-h]`\
-   You may need to specify the path to your IAL repository by argument.\
-   To be sure of the tests version to use, cf. [DAVAI-tests](https://github.com/ACCORD-NWP/DAVAI-tests#readme) README.md
-2. go to the displayed directory of the experiment (ending with `.../dv-xxxx@user/davai/nrv/`)
-3. run the tests: `./RUN_XP.sh`\
-   This script runs the 3 subscripts `0.setup_ciboulai.sh`, `1.packbuild.sh`, `2.tests.sh` in a sequence.
-   * `0.setup_ciboulai.sh` (re-)initializes the current experiment in the *Ciboulai* dashboard.
-   * `1.packbuild.sh` prepares a *gmkpack* pack with the source code of the provided Git reference, compiles the sources
-     and build executables.
-   * `2.tests.sh` runs the tests in semi-parallel, through job scheduler.
+1. Prepare an experiment based on version `<v>` of the tests, to validate an IAL Git reference `<r>`:\
+   `davai-prep_xp <r> -v <v> [-h]`\
+   (you may need to specify the path to your IAL repository by argument, cf. options with `-h`)\
+   To know what version of the tests to use, cf. below.
+2. Go to the prompted directory of the experiment (ending with `.../dv-<nnnn>-<platform>@<user>/davai/nrv/`)
+3. Run the tests: `./RUN_XP.sh` and monitor (standard output for the build, then job scheduler).
 
-### Bundle version
+Explanations to be found in the User Guide.
 
-tbc... 
+Tests versions and reference experiments
+----------------------------------------
 
-First tips
-----------
+To be used in `davai-prep_xp -v <davai_tests_version> [-r <ref_xpid>] ...`
 
-* If the pack preparation or compilation fails, for whatever reason, the `1.packbuild.sh` prints an error message and
-  the `RUN_XP.sh` stops before running the tests. You can find the output of the pack prep or compilation in `logs/`
-  subdirectory, as any other test log.
-* The tests are organised as *tasks* and *jobs*:
-  * a *task* consists in fetching input resources, running an executable, analyzing its outputs to the Ciboulai dashboard
-     and dispatching (archiving) them : *1 test = 1 task*
-  * a *job* consists in a sequential driver of one or several *task(s)*: either a flow sequence (i.e. outputs of
-     task N is an input of task N+1) or family sequence (e.g. run independantly an IFS and an Arpege forecast)
-* To fix a piece of code, the best is to modify the code in your Git repo, then re-run `RUN_XP.sh` (or `1.packbuild.sh`
-  and then `2.tests.sh`). You don't necessarily need to commit the change rightaway, the non-committed changes are 
-  exported from Git to the pack. Don't forget to commit eventually though.
-* To re-run a job after re-compilation, open `2.tests.sh`, find the `mkjob.py` command-line of the job, and run that command-line
-  in interactive.
-* Note: the `mkjob.py` argument `task=category.job` indicates that the job to be run is the driver in `./tasks/category/job.py`
-* To re-run a single test within a job, e.g. the IFS forecast in `forecasts/standalone_forecasts.py` : edit this file,
-  comment the other families or tasks (*nodes*) therein, and re-run the job as indicated above.
-* Eventually after code modifications and fixing particular tests, you should re-run the whole set of tests, to make
-  sure your fix does not break any other test.
+| _What to test_ | Basis of the dev | Nominal tests version | Reference XPID |
+|:-----------------|:-----------------|:----------------------|:---------------|
+| Merge branch CY49 | `CY48T3` | `DV48T3` | (tbd) |
+| 48T3 dev branch | `mary_CY48T2_to_T3` | `dev_DV48T3` | `dv-0133-belenos@mary` |
+| Development on top of 48T2 | `CY48T2` | `dev` | `dv-0133-belenos@mary` |
+| Dble branch `gco_CY48T1_op1` | `gco_CY48T1_op1` | `dev_DV48T1_op1` | `dv-0018-belenos@moureauxm` |
+| _Development on top of_ `48T1_op0.04` | `CY48T1_op0.04` | `DV48T1_op0.04-2` | `dv-0018-belenos@moureauxm` |
 
-By the way
-----------
+Lexicon
+-------
 
-DAVAI means:
-
-*"Dispositif d'Aide a la Validation d'Arpege-IFS & modeles a aire limitee"*
-
-*"Device Aiming at the Validation of Arpege-IFS & limited area models"*
+* **DAVAI** stands for: _"Device Aiming at the VAlidation of IAL"_
+* **IAL** = IFS-Arpege-LAM
 

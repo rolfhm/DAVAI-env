@@ -48,94 +48,105 @@
 
 DAVAÏ embeds the whole workflow from the source code to the green/red light validation status: fetching sources from Git, building executables, running test cases, analysing the results and displaying them on a dashboard.
 
-For now, the only build system embedded is \texttt{gmkpack}, but we expect other systems to be plugged if required. In this version too, all main source projects are also supposed to be in the same repository. The next version of the DAVAÏ system will include multi-projects/repositories fetching, using the \textit{\texttt{bundle}} concept.
+For now, the only build system embedded is \texttt{gmkpack}, but we expect other systems to be plugged when required. The second limitation of this version is that the starting point is still an IAL Git reference only. The next version of the DAVAÏ system will include multi-projects/repositories fetching, using the \textit{\texttt{bundle}} concept as starting point.
 
-The dimensioning of tests (grid sizes, number of observations, parallelization...) is done in order to conceal representativity and execution speed. Therefore, in the general usecases, the tests are supposed to run on HPC. A dedicated usecase will target smaller configurations to run on workstation.\\
+The dimensioning of tests (grid sizes, number of observations, parallelization...) is done in order to conceal representativity and execution speed. Therefore, in the general usecases, the tests are supposed to run on HPC. A dedicated usecase will target smaller configurations to run on workstation (not available yet).\\
 
-An accessible source code forge is to be set within the ACCORD consortium to host the central repository on which updates and releases are published, and where integration requests will be posted, reviewed and monitored. This is expected to be setup and advertised for 2022.
-An update of the documentation with details about these aspects will be released in due time.
+An accessible source code forge is set within the ACCORD consortium to host the central repository on which updates and releases are published, and where integration requests will be posted, reviewed and monitored. This is expected to become official and be advertised more by the end of 2022.
+\begin{center}
+ \rule{8cm}{1pt}
+\end{center}
 
-
+By the way: DAVAI stands for \textit{``\textbf{D}evice \textbf{A}iming at the \textbf{VA}lidation of \textbf{I}AL\footnote{IAL = \textbf{I}FS-\textbf{A}rpege-\textbf{L}AM}''}
 
 \newpage
-\section{Systematic test of contributions}
-
-\subsection{TUTORIAL: Test a contribution} 
-\subsubsection{Create your branch, containing your modifications}
-To use DAVAÏ to test your contribution to the next development release, you need to have your code in a Git branch starting from the latest official release (e.g. \texttt{CY48T1} tag for contributions to 48T2, or \texttt{CY49} tag for contributions to 49T1). \textit{A branch starting from a different basis will be refused, except if it starts from a commit of the \textbf{integration branch} towards the next release (e.g. \texttt{\textit{mary\_CY48T1\_preT2}} for 48T2). Note that in this case, the tests version and the reference experiment might have to be different.}\\
+\section{TUTORIAL: Test an IAL development} 
+\subsection{Create your branch, containing your modifications}
+To use DAVAÏ to test your contribution to the next development release, you need to have your code in a Git branch starting from the latest official release (e.g. \texttt{CY48T1} tag for contributions to 48T2, or \texttt{CY49} tag for contributions to 49T1).
 
 \noindent In the following the example is taken on a contribution to 48T2:
-\begin{enumerate}[label=(C.\arabic*)]
- \item In your repository (e.g. \texttt{$\sim$/repositories/arpifs}), create your branch:\\
- \texttt{git\_branch -r 48T1 -u \textit{<mydev>}}\\
- \underline{Note:} for now, using GCO's command here is still necessary for later posting to GCO repository (otherwise \texttt{git branch} or \texttt{git checkout -b} could natively be used). The branch name is then \textit{\texttt{<user>\_CY48T1\_<mydev>}}, hereafter refered to as \textit{\texttt{<mybranch>}}.
- \item Implement your developments in the branch.
- Two cases are possible here:
- \begin{itemize}
-  \item you don't necessarily commit your changes at this stage, and therefore you keep your repository in this state to test your branch. DAVAÏ will be able to test locally the non-committed modifications. 
-  \item or your developments have already been committed, and you have checkedout another branch since. In this case, there is no need to check it out again, DAVAÏ will do it for you (as long as there is no non-committed modifications pending in the current branch; \texttt{git status} to check that).
- \end{itemize}
+\begin{enumerate}[label=(\greek*)]
+ \item In your repository (e.g. \texttt{$\sim$/repositories/arpifs} -- make sure it is clean with \texttt{git status} beforehand), create your branch:\\
+ \texttt{git checkout -b \textit{<my\_branch>} [\textit{<starting\_reference>}]}\\
+ (e.g. \texttt{git checkout -b mary\_CY48T1\_cleaning CY48T1})\\
+ \underline{Note:} it is strongly recommended to have explicit branch names with regards to their origin and their owner, hence the legacy branch naming syntax \texttt{<user>\_<CYCLE>\_<purpose\_of\_the\_branch>}
+ \item Implement your developments in the branch.\\
+ \textit{It is recommended to find a compromise between a whole development in only one commit, and a large number of very small commits (e.g. one by changed file).} In case you then face compilation or runtime issues then, but only if you haven't pushed it yet, you can \textit{amend}\footnote{\texttt{git commit --amend}} the latest commit to avoid a whole series of commits just for debugging purpose.\\
+ \underline{Note:} DAVAÏ is currently able to include non-committed changes in the compilation and testing. However, in the next version based on \textit{bundle}, this might not be possible anymore.
 \end{enumerate}
 
 
-\subsubsection{Test !} 
-\paragraph{Setup your experiment}
+\subsection{Run tests} 
+\subsubsection{Setup your experiment}
 \begin{enumerate}[label=(\alph*)]
  \item Create your experiment, specifying which version of the tests you want to use:\\
  \texttt{davai-prep\_xp \textit{<my\_branch>} -v \textit{<tests\_version>}}\\
- 
- $\rightarrow$ To know what is the version to be used for a given development:
- \begin{itemize}
-  \item for now, please refer to \texttt{DAVAI-tests/README.md}\\
-        (visible here: \href{https://github.com/ACCORD-NWP/DAVAI-tests}{https://github.com/ACCORD-NWP/DAVAI-tests}
-  \item see Section~\ref{sect:tests_versioning} for a more comprehensive answer.
-  \item see \texttt{davai-prep\_xp -h} for more options on this command, e.g. to specify a reference experiment that is not the default one for the version of the tests.
- \end{itemize}
- If the version you are requesting is not known, you may need to update the tests repository with command: \texttt{davai-update}\\
- An experiment with a unique experiment ID is created, and prompted together with its path as output of the command.
- \item Go to the experiment directory.\\
+ (e.g. \texttt{davai-prep\_xp mary\_CY48T1\_cleaning -v DV48T1})\\
+ $\hookrightarrow$ An experiment with a unique experiment ID is created and prompted as output of the command, together with its path.\\
  \\
- Now you may have to set some options differently from the default, for this experiment. To do so, open file \texttt{conf/davai\_nrv.ini} and tune the parameters in the \texttt{[DEFAULT]} section. The usual tunable parameters are detailed in Section~\ref{sect:options}.
+ \underline{Note:} to know what is the version to be used for a given development:
+ \begin{itemize}
+  \item for now, please refer to \texttt{DAVAI-env/README.md}\\
+        (visible here: \href{https://github.com/ACCORD-NWP/DAVAI-env}{https://github.com/ACCORD-NWP/DAVAI-env}
+  \item see \texttt{davai-prep\_xp -h} for more options on this command, e.g. to specify a reference experiment that is not the default one for the version of the tests.
+  \item see Appendix~\ref{sect:tests_versioning} for a more comprehensive approach to tests versioning.
+ \end{itemize}
+ \underline{Note2:} If the version you are requesting is not known, you may need to update the tests repository before, using command: \texttt{davai-update}
+ \item $\hookrightarrow$ Go to the (prompted) experiment directory.\\
+ \\
+ Now you may want to set some options differently from the default, for this experiment. To do so, open file \texttt{conf/davai\_nrv.ini} and tune the parameters in the \texttt{[DEFAULT]} section. The usual tunable parameters are detailed in Section~\ref{sect:options}.
  \item Launch the build and tests:\\
  \texttt{./RUN\_XP.sh}\\
- The script will first run the build of the branch, wait for the executables, and then launch the tests (through scheduler on HPC).
+ The script will first run the build of the branch and wait for the executables (that step may take a while, especially with several compilation flavours), and then launch the tests (through scheduler on HPC).
 \end{enumerate}
 
 
-\paragraph{Monitor and inspect results}
+\subsubsection{Monitor and inspect results}
 \begin{enumerate}[resume,label=(\alph*)]
  \item Monitor the execution of the jobs with the scheduler (e.g. with SLURM: \texttt{squeue -u \textit{<user>}})
- \item Open \textit{Ciboulaï} dashboard \footnote{at time of writing, this URL is not accessible from outside MF yet. The status and expertise of tests are however available as json files on the Vortex cache:\\
- \texttt{belenos:/scratch/mtool/<user>/cache/vortex/davai/nrv/<xpid>/summaries\_stack/}}
- (\href{http://intra.cnrm.meteo.fr/gws/davai}{http://intra.cnrm.meteo.fr/gws/davai}), to check the tests status
-\begin{itemize}
- \item[$\Rightarrow$] To guide you in the navigation in \textit{Ciboulaï}, cf. Section~\ref{sect:ciboulai_navigation}.
- \item[$\Rightarrow$] To get the paths to a job output or abort directory: button \texttt{[+]} then \textit{\textbf{Context}}.
-\end{itemize}
+ \item Check the tests results summary; at time of writing, the \textit{Ciboulaï} dashboard is not accessible from outside MF yet, hence an alternate command-line is available:
+ \begin{itemize}
+  \item Open \textit{Ciboulaï} dashboard in a web browser: (\href{http://intra.cnrm.meteo.fr/gws/davai}{http://intra.cnrm.meteo.fr/gws/davai})
+  \begin{itemize}
+   \item[$\Rightarrow$] To guide you in the navigation in \textit{Ciboulaï}, cf. Section~\ref{sect:ciboulai_navigation}.
+   \item[$\Rightarrow$] To get the paths to a job output or abort directory: button \texttt{[+]} then \textit{\textbf{Context}}.
+  \end{itemize}
+  \item[or]
+  \item In the XP directory, run:\\
+  \texttt{davai-xp\_status}\\
+  to see the status summary of each job.
+  The detailed status and expertise of tests are also available as json files on the Vortex cache:\\
+ \texttt{belenos:/scratch/mtool/<user>/cache/vortex/davai/nrv/<xpid>/summaries\_stack/}\\
+ or\\
+ \texttt{davai-xp\_status -t <task>}\\
+ $\Rightarrow$ To get the paths to a job output or abort directory: \texttt{davai-xp\_status -t <task>} then open the \texttt{itself} file and look in the \textit{\textbf{Context}} section.
+ \end{itemize}
 \end{enumerate}
-If everything is green (OK) at the end of executions, your branch is validated !\\
-If not, cf. Section~\ref{sect:options} to re-compile a code modification and re-run tests.
 
-
-\subsubsection{Push your branch}
-\textit{Note: this part will change with the implementation of a central repository on \texttt{github.com/ACCORD-NWP} (or other chosen forge solution).}\\
-If you are finally happy with the branch and testing experiment results, you can now post your branch to the official repository and ask for its integration:
+\subsubsection*{And then ?}
 \begin{itemize}
- \item First, check that you don't have pending-uncommitted modifications:\\
- \texttt{git status}\\
- If you do, commit them.\\
- \texttt{git add <file1> <file2>...} or \texttt{git add .}\\
- then\\
- \texttt{git commit}
- \item Post to GCO official repository:\\
- \texttt{git\_post}
+ \item If everything is OK (green) at the end of executions, your branch is validated !
+ \item If not, cf. Section~\ref{sect:options} to re-compile a code modification and re-run tests.
 \end{itemize}
 
-\noindent You can then issue your Integration Request (Section~\ref{sect:finalize_submission}).
+\subsubsection{First tips}
+\begin{itemize}
+ \item If the \textbf{pack preparation or compilation fails}, for whatever reason, the \texttt{1.build.sh} prints an error message and the \texttt{RUN\_XP.sh} stops before running the tests. You can find the output of the pack preparation or compilation in \texttt{logs/} directory, as any other test log.
+ \item The tests are organised as \textit{\textbf{tasks}} and \textit{\textbf{jobs}}:
+  \begin{itemize}
+   \item a \textit{\textbf{task}} consists in fetching input resources, running an executable, analyzing its outputs to the Ciboulai dashboard and dispatching (archiving) them: \textit{1 test = 1 task}
+   \item a \textit{\textbf{job}} consists in a sequential driver of one or several \textit{task(s)}: either a flow sequence (i.e. outputs of task N is an input of task N+1) or family sequence (e.g. run independantly an IFS and an Arpege forecast)
+  \end{itemize}
+ \item To \textbf{fix a piece of code}, the best is to modify the code in your Git repo, then re-run \texttt{RUN\_XP.sh} (or \texttt{1.build.sh} then \texttt{2.tests.sh}). You don't necessarily need to commit the change rightaway, the non-committed changes are exported from Git to the pack. Don't forget to commit eventually though.
+ \item To \textbf{re-run a job after re-compilation}, open \texttt{2.tests.sh}, find the \texttt{mkjob.py} command-line of the job, and run that command-line in interactive.
+ \item The \texttt{mkjob.py} argument \texttt{task=category.job} indicates that the job to be run is the \textit{\textbf{Driver}} in \texttt{./tasks/category/job.py}
+ \item To \textbf{re-run a single test} within a job, e.g. the IFS forecast in \texttt{forecasts/standalone\_forecasts.py}: edit this file, comment the other families or tasks (\textit{nodes}) therein, and re-run the job as indicated above.
+ \item \textbf{Eventually}, after code modifications and fixing particular tests, you should re-run \textbf{the whole set of tests}, to make sure your fix does not break any other test.
+\end{itemize}
 
 
-
-
+ 
+ 
 \newpage
 \subsection{Navigation in \textit{Ciboulaï}\label{sect:ciboulai_navigation}}
 \href{http://intra.cnrm.meteo.fr/gws/davai}{http://intra.cnrm.meteo.fr/gws/davai}
@@ -167,45 +178,25 @@ If you are finally happy with the branch and testing experiment results, you can
 
 
 
-
 \newpage
-\subsection{Integration request\label{sect:finalize_submission}}
-\textit{Note: this part will change with the implementation of a central repository on \texttt{github.com/ACCORD-NWP} (or other chosen forge solution).}\\
-
-\noindent $\rightarrow$ For MF contributors, the request for integration of your branch is still to be issued on the GMAP-GCO form : \href{http://intra.cnrm.meteo.fr/gmap/meshtml/GCOmess/messages.php}{http://intra.cnrm.meteo.fr/gmap/meshtml/GCOmess/messages.php}
-
-\noindent $\rightarrow$ For external partners, for now it has to be done by e-mail, following the template given as Appendix~\ref{appx:template}.\\ 
-
-\noindent In both cases, don't forget to include in the request:
- \begin{itemize}
-  \item the \textit{\textbf{testing experiment ID}} and the \textit{\textbf{link to its Ciboulaï page}}
-  \item the \textbf{impact} of the contribution: \textit{\textbf{bit-reproducible}}, or if not, explain what impacts are expected, in which configurations, and justify it.
-  \item \textbf{suggestion of a reviewer}: for the technical implementation, not for the scientific purpose of the contribution.
- \end{itemize}
-
-
-
-
-
-\newpage
-\section{How it works, briefly}
-\subsection{Organisation of an experiment}
-The \texttt{davai-prep\_xp} command-line prepares a ``testing experiment'' directory, named after an incremental number, the git reference and the user.
+\subsection{How it works, briefly}
+\subsubsection{Organisation of an experiment}
+The \texttt{davai-prep\_xp} command-line prepares a ``testing experiment'' directory, named after an incremental number, the platform and the user.
 
 \noindent This testing experiment will consist in:
 \begin{itemize}
  \item \texttt{conf/davai\_nrv.ini} : config file, containing parameters such as the git reference to test, davai options, historisations of input resources to use, tunings of tests (e.g. the input obs files to take into account) and profiles of jobs
  \item \texttt{tasks/} : templates of single tasks and jobs
- \item \texttt{RUN\_XP.sh} : wrapper to \texttt{0.setup\_ciboulai.sh $\rightarrow$ 1.packbuild.sh $\rightarrow$ 2.tests.sh}
+ \item \texttt{RUN\_XP.sh} : wraps \texttt{0.setup\_ciboulai.sh $\rightarrow$ 1.build.sh $\rightarrow$ 2.tests.sh}
  \item \texttt{0.setup\_ciboulai.sh} : (re-)initialize the experiment in ciboulai dashboard
- \item \texttt{1.packbuild.sh} : get source code (branch), make a gmkpack pack with it, compile and link executables (and wait for them)
+ \item \texttt{1.build.sh} : get source code (branch), make one or several gmkpack pack(s) with it -- depending on the number of \textit{compilation flavours} requested in config, e.g. double and single precision -- then compile and link executables (and wait for them)
  \item \texttt{2.tests.sh} : build the tests and run them through the jobs scheduler
  \item links to the python packages that are used by the scripts (\texttt{vortex}, \texttt{epygram}, \texttt{ial\_build}, \texttt{ial\_expertise})
  \item a \texttt{logs} directory/link will appear after the first execution, containing log files of each job.
 \end{itemize}
 
 
-\subsection{Running jobs on HPC : \texttt{MTOOL}}
+\subsubsection{Running jobs on HPC : \texttt{MTOOL}}
 On HPCs, the compute nodes are ``expensive'' and so we try as much as possible to save the elapse time spent on compute nodes for actual computations, i.e. execution of the executable.
 Therefore in DAVAÏ, the generation of the scripts uses the \texttt{MTOOL} filter to replicate and cut a job script into several \textit{\textbf{steps}}:
 \begin{enumerate}[label=(step.0\arabic*)]
@@ -227,7 +218,7 @@ Therefore for each job, one will find :
  
 
 
-\subsection{Jobs \& tasks}
+\subsubsection{Jobs \& tasks}
 
 A \textit{Task} is generally understood as the triplet: (1) fetch input resources, (2) run an executable, (3) dispatch the produced output.
 In a Vortex script, the tasks are written in Python, using classes and functionalities of the Vortex Python packages. In particular, running an executable is wrapped in what is called an \textit{AlgoComponent}. In DAVAÏ, we add a second \textit{AlgoComponent} right after the nominal one in (2) to \textit{``expertise''} the outputs and compare to a reference.
@@ -249,22 +240,25 @@ In DAVAÏ, the idea is to have the tasks in independant jobs as far as possible,
 
 
 \newpage
-\section{More advanced use\label{sect:options}}
+\section{More details\label{sect:options}}
 
 \subsection{(Re-)Build of executables}
-The 2 tasks in the \texttt{packbuild} job are respectively in charge of:
+\subsubsection{Build with \texttt{gmkpack}}
+The tasks in the \texttt{build} job are respectively in charge of:
 \begin{itemize}
- \item \texttt{\textit{gitref2pack}} : fetch/pull the sources from the requested Git reference and set an incremental \texttt{gmkpack}'s pack, populated with the set of modifications gathered from the latest official tag/pack, to the contents of your branch (including non-commited modifications).
- \item \texttt{\textit{pack\_compile\_link}} : compile sources and link necessary executables (i.e. those used in the tests).
+ \item \texttt{\textit{gitref2pack}} : fetch/pull the sources from the requested Git reference and set one or several incremental \texttt{gmkpack}'s pack(s) -- depending on \texttt{compilation\_flavours} as set in config. The packs are then populated with the set of modifications, from the latest official tag to the contents of your branch (including non-commited modifications).
+ \item \texttt{\textit{pack2bin}} : compile sources and link necessary executables (i.e. those used in the tests), for each pack flavour.
 \end{itemize}
 
 \noindent In case the compilation fails, or if you need to (re-)modify the sources for any reason (e.g. fix an issue):
 \begin{enumerate}[label=\arabic*.]
   \item implement corrections in the branch (commited or not)
   \item in \texttt{conf/davai\_*.ini}, section \texttt{[gitref2pack]}, switch key \texttt{preexisting\_pack = True}, so that the pack does not need to be re-created, but only re-populated (the key being \texttt{False} is a protection against unhappy overwrites of existing packs)
-  \item re-run \texttt{./1.packbuild.sh} and then if build successful \texttt{./2.tests.sh}
+  \item re-run \texttt{./1.build.sh} and then if build successful \texttt{./2.tests.sh}
  \end{enumerate}
 
+\subsubsection{Build with ...}
+Not implemented yet.
 
 \subsection{Re-run a test}
 
@@ -298,7 +292,6 @@ The \textit{\textbf{usecase}} parameter of an experiment (to be set in the \text
    \item \texttt{NRV} (default): Non-Regression Validation, minimal set of tests that any contribution must pass.
    \item \texttt{ELP}: Exploration and Localization of Problems, extended set of isolated components, to help localizing an issue
    \item \textit{\texttt{PC}: set of toy tests ported on workstation; the compilation with GNU (usually less permissive than vendors) enables to raise issues that might not have been seen with NRV/ELP tests.}
-   \item \textit{\texttt{NRV32b}: subset of 32bits (a.k.a. single precision) compatible tests}
   \end{itemize}
 
 \subsubsection*{Smaller tests for smaller problems}
@@ -308,8 +301,12 @@ To investigate a non-reproducibility or crash issue, the \texttt{ELP} usecase of
 \noindent To switch to this mode:
 \begin{itemize}
  \item create a new experiment with the same arguments but \texttt{-u ELP}
- \item go to the new experiment
- \item if the executables are already built, you can skip the \texttt{\textit{build}} : just run \texttt{./1.ciboulai\_setup.sh} and then directly \texttt{./2.tests.sh} or just a subset of jobs therein.
+ \item go to the new experiment, edit config file \texttt{conf/davai\_elp.ini} and reach section \texttt{[gitref2pack]}:
+ \begin{itemize}
+  \item set \texttt{preexisting\_pack = True}
+  \item set \texttt{cleanpack = False} for a faster build
+ \end{itemize}
+ \item run \texttt{./RUN\_XP.sh}
 \end{itemize}
 
 \noindent Instead of 40$^+$ tests, the ELP mode will provide hundreds of more elementary and focused tests. For instance, if you had a problem in the 4DVar minimization, you can run the 3 observation operators tests, observation by observation, and/or a screening, and/or a 3DVar or 4DVar single-obs minimization, in order to understand if the problem is in a specific observation operator (which obs type ?), in its direct, TL or AD version, or in the Variational algorithm, or in the preceding screening, and so on...
@@ -319,42 +316,47 @@ To reduce the tests that are innerly looped (e.g. the loop on observation types 
 
 
 \subsection{Build options}
-\textit{(\texttt{gmkpack} only, for now)}\\
-In the \texttt{[DEFAULT]} section of config file \texttt{conf/davai\_*.ini}:
+The choice of a build system is done by argument at the creation of an experiment:\\
+\texttt{davai-prep\_xp --compiling\_system gmkpack}\\
+command-line. However, at time of writing, only \texttt{gmkpack} is available within DAVAÏ.
+\subsubsection{Build with \texttt{gmkpack}}
+In the \texttt{[gmkpack]} section of config file \texttt{conf/davai\_*.ini}:
 \begin{itemize}
  \item to make a main pack, instead of an incremental pack\\
- $\hookrightarrow$ set \texttt{gmkpack\_packtype = main}
- \item to use a different compiler set of options (label or flag)\\
- $\hookrightarrow$ use \texttt{gmkpack\_compiler\_label}, \texttt{gmkpack\_compiler\_flag}
+ $\hookrightarrow$ set \texttt{packtype = main}
+ \item to set the list of compilation flavours to build (a.k.a. compiler label/flag)\\
+ $\hookrightarrow$ use \texttt{compilation\_flavours}\\
+ ! if you modify this, you potentially need to modify the \texttt{compilation\_flavour} accordingly in the ``families'' sections that define it
 \end{itemize}
 In the \texttt{[gitref2pack]} section:
 \begin{itemize}
- \item to filter source files at populate/link time\\
- $\hookrightarrow$ use \texttt{populate\_filter\_file} and \texttt{link\_filter\_file}, to indicate a file in which to read the files to filter out.\\
- \textit{Beware that this will replace the default files used for that purpose.}
+ \item to use a different \texttt{\$ROOTPACK} (i.e. a different source of ancestor packs, for incremental packs)\\
+ $\hookrightarrow$ use \texttt{rootpack}
 \end{itemize}
-In the \texttt{[pack\_compile\_link]} section:
+In the \texttt{[pack2bin]} section:
 \begin{itemize}
- \item to make the \texttt{\textit{pack\_compile\_and\_link}} task crash more quickly after a compilation/link error, or do not crash at all\\
+ \item to make the \texttt{\textit{pack2bin}} task crash more quickly after a compilation/link error, or do not crash at all\\
  $\hookrightarrow$ use \texttt{fatal\_build\_failure} accordingly
  \item to re-generate \texttt{ics\_*} files before building\\
  $\hookrightarrow$ set \texttt{regenerate\_ics = True}
  \item to (re-)compile local sources with \texttt{gmkpack's} option \texttt{Ofrt=2} (i.e. \texttt{-O0 -check bounds}):\\
  $\hookrightarrow$ set \texttt{Ofrt = 2}
 \end{itemize}
-\noindent Also, any \texttt{gmkpack} native variables can be set in the \texttt{.bash\_profile}, e.g. \texttt{ROOTPACK, HOMEPACK}, etc...
+\noindent Also, any \texttt{gmkpack} native variables can be set in the \texttt{.bash\_profile}, e.g. \texttt{ROOTPACK, HOMEPACK}, etc... Some might be overwritten by the config, e.g. if you set \texttt{rootpack} in config file.
 
+\subsubsection{Build with ...}
+Not implemented yet.
 
 \subsection{Input data}
 DAVAÏ gets its input data through 2 providers:
 \begin{itemize}
- \item \textit{``shelves''} (pseudo Vortex experiments) for the data supposed to flow in real case (e.g. initial conditions file, observations files, etc...), where it is statically stored, usually in a cache for faster fetching
+ \item \textit{``shelves''} (pseudo Vortex experiments) for the data supposed to flow in real case (e.g. initial conditions file, observations files, etc...), where this data is statically stored, usually in a cache to fetch it faster
  \item \textit{``uget''} for the static data (namelists, climatologic files, parameter files...), catalogued in \textit{\textbf{uenv}} files.
 \end{itemize}
 
 These \textit{shelves} and \textit{uenv} catalogs (cf. \textit{uget/uenv} help documentation for the use of this tool.) can be modified in the \texttt{[DEFAULT]} section of config file.
 
-In case your contribution need a modification in these, \textbf{\textit{don't forget to describe these changes in the integration request}}.
+In case your contribution needs a modification in these, \textbf{\textit{don't forget to describe these changes in the integration request}}.
 
 
 
@@ -399,135 +401,179 @@ Again, if you need to modify these, please \textit{\textbf{explain and describe 
 
 
 
+
+
 \newpage
+\begin{appendix}
+
+
 \section{Versioning of tests\label{sect:tests_versioning}}
 
 The following reasons may require to update the tests:
+\begin{enumerate}[label=\alph*.]
+ \item Update the input resources or a task template script, to \textbf{change the purpose or context of a test} (e.g. new observations or modified namelists, to pull the tests more closely to operational configurations, ...). This usually comes with a change in the targeted tests outputs.
+ \item Add \textbf{new tests}.
+ \item Update the resources to \textbf{adapt to a code change} (e.g. new radiative coefficients files format, or a mandatory namelist change), with or without change in the results.
+\end{enumerate}
+
+Therefore it is necessary to track the evolutions of the tests properly, and version them clearly, so that it is clear what fixed or evolving version is to be used in any context. Hence the existence of the \texttt{DAVAI-tests} repository.\\
+
+The first two kinds of evolutions (a. and b.) are not necessarily linked to a contribution of code to the IAL repository, and therefore can be implemented at any moment in a dedicated branch of the tests repository (\texttt{DAVAI-tests}). This is described in more details in section~\ref{sect:add-modify-tests}.
+
+The latter is on the other hand attached to a contribution, and will require to be given together with the contribution for an integration, and be integrated itself in an evolving tests branch dedicated to test successive steps of the IAL integration branch. This case is detailed in more details in section~\ref{sect:parallel-branches}.
+
+To follow more easily what version of the tests should be used in particular for contributions to the IAL codes, it is proposed to adopt a nomenclature that maps the IAL releases and integration/merge branches, but replacing \texttt{"CY"} by \texttt{"DV"} (for DAVAÏ), as illustrated on Figure~\ref{fig:tests_versioning}.
+With this principle, the version of the tests to be used \textit{by default} would be, for example:
 \begin{itemize}
- \item update the input resources, to change the purpose or context of a test (e.g. new observations, pull the tests more closely to operational configurations, ...), which may change the results of some tests
- \item add new tests
- \item update the resources to adapt to a code change (e.g. new radiative coefficients files, or a mandatory namelist change), with or without change in the results
+ \item for a development based on \texttt{CY49} $\rightarrow$ \texttt{DV49}
+ \item for an integration branch towards \texttt{CY49T1}, named \texttt{dev\_CY49\_to\_T1} $\rightarrow$ \texttt{dev\_DV49\_to\_T1}
 \end{itemize}
 
-The first two are not necessarily linked to a contribution of code to the IAL repository, and therefore can be implemented at any moment in a dedicated branch of the tests API.
-The latter is on the other hand attached to a contribution, and will require to be given together with the contribution for an integration.
-
-In the context of integration, it is suitable that the tests change as little as possible during the successive integration of contributions. Therefore we will fix a version of the tests at the beginning of integration, and only adapt it for the contributions that require an update of the tests.\\
-
-To follow more easily what version of the tests should be used for any piece of modifications to the IAL codes, it is proposed to adopt a nomenclature that maps the IAL releases, but replacing \textit{``CY''} by \textit{``DV''}, as illustrated on the following.
-
-
-\subsection{Examples: when to use which version of the tests ?}
-
-Let's consider the process of integration of contribution branches on top of \texttt{CY49} to build a \texttt{CY49T1}.
-Therefore we have set a reference experiment on \texttt{CY49}, hereafter named \texttt{<ref\_xp0>}, generated with an identified version of the tests (tag \texttt{DV49}) that we want to use for contributions based on that cycle :\\
-\texttt{davai-prep\_xp CY49 -v DV49} $~~~\rightarrow~~~$ \texttt{\textit{<ref\_xp0>}}\\
-
-Let's say we have 5 of these contribution branches based on \texttt{CY49}, and an integration branch \texttt{CY49\_toT1}. These 5 contributions may have different levels of reproducibility: they may conserve the results or not; they may require resources adaptations (e.g. namelist updates, ...) or not, in which case they come with tests adaptations in an associated tests branch. Cf. the table :\\
-
-\begin{tabular}{|c|c|c|l|}
-\hline
- branch & results & resources & tested with\\
- \hline
- \texttt{b1} & $=$ & $=$ & \texttt{DV49}\\
- \texttt{b2} & $\neq$ & $=$ & \texttt{DV49}\\
- \texttt{b3} & $=$ & $\neq$ & $\rightarrow$ \texttt{DV49\_b3}\\
- \texttt{b4} & $\neq$ & $\neq$ & $\rightarrow$ \texttt{DV49\_b4}\\
- \texttt{b5} & $=$ & $=$ & \texttt{DV49}\\
- \hline
-\end{tabular}\\
-
-\noindent In parallel to the integration branch \texttt{CY49\_toT1}, we start a tests branch from \texttt{DV49} to collect the necessary adaptations of the tests, similarly named \texttt{DV49\_toT1}, which will serve to validate the integration branch.\\
-
-Figure~\ref{fig:tests_versioning} illustrates the loose parallelism of the IAL repository and tests versioning.
-The successive integration of these branches are validated using:
-\begin{itemize}
- \item integration of \texttt{b1} :\\
- \texttt{davai-prep\_xp -v DV49\_toT1 -r \textit{<ref\_xp0>}}
- 
- \item integration of \texttt{b2} :
- \begin{itemize}
-  \item \texttt{b1} did not change the results $\rightarrow$ reference experiment remains \texttt{\textit{<ref\_xp0>}}
-  \item \texttt{b1} \& \texttt{b2} did not require to adapt the tests $\rightarrow$ tests branch \texttt{DV49\_toT1} unchanged
- \end{itemize}
- \texttt{davai-prep\_xp -v DV49\_toT1 -r \textit{<ref\_xp0>}} $~~~\rightarrow~~~$ \textit{\texttt{<ref\_xp2>}}
- 
- \item integration of \texttt{b3} :
- \begin{itemize}
-  \item \texttt{b2} changed the results $\rightarrow$ reference experiment becomes \textit{\texttt{<ref\_xp2>}}
-  \item \texttt{b3} requires tests adaptations (\texttt{DV49\_b3}) $\rightarrow$ update \texttt{DV49\_toT1} by merging in \texttt{DV49\_b3}
- \end{itemize}
- \texttt{davai-prep\_xp -v DV49\_toT1 -r \textit{<ref\_xp2>}}
- 
- \item integration of \texttt{b4} :
- \begin{itemize}
-  \item \texttt{b3} did not changed the results $\rightarrow$ reference experiment remains \textit{\texttt{<ref\_xp1>}}
-  \item \texttt{b4} requires tests adaptations (\texttt{DV49\_b4}) $\rightarrow$ update \texttt{DV49\_toT1} by merging in \texttt{DV49\_b4}
- \end{itemize}
- \texttt{davai-prep\_xp -v DV49\_toT1 -r \textit{<ref\_xp2>}} $\rightarrow$ \texttt{\textit{<ref\_xp4>}}
-  
- \item integration of \texttt{b5} :
- \begin{itemize}
-  \item \texttt{b4} changed the results $\rightarrow$ reference experiment becomes \textit{\texttt{<ref\_xp4>}}
-  \item \texttt{b5} did not require tests adaptations $\rightarrow$ tests branch \texttt{DV49\_toT1} unchanged
- \end{itemize}
- \texttt{davai-prep\_xp -v DV49\_toT1 -r \textit{<ref\_xp4>}}
-\end{itemize}
-
-\noindent In case some intermediate versions of the integration branch are tagged and some branches are based/rebased on these tagged versions, we could also tag accordingly the tests branch if necessary.
 
 \begin{figure}[h!]
  \begin{center}
   \fbox{\includegraphics[scale=0.65]{../figures/tests_versioning.pdf}}
  \end{center}
- \caption{\label{fig:tests_versioning} Semi-parallel versioning of tests following cycles.}
+ \caption{\label{fig:tests_versioning} Versioning of tests in consistency with cycles and branches.}
+\end{figure}
+
+
+\subsection{Adding or updating tests independently from the code\label{sect:add-modify-tests}}
+
+The tests modifications which are not intrinsically linked with a contribution (adding tests or modifying a test to modify its behaviour) can be done at any moment, in a development branch of the tests repository. However, in order not to disturb the users and integrators, they should be merged into the next official version of tests (i.e. the version used for contributions and integrations to IAL) \underline{only between a declaration of an IAL release and a call for contribution}.
+
+
+\subsection{Evolution of the tests w.r.t. Integration of an IAL release\label{sect:parallel-branches}}
+
+In the context of integration of an IAL release, it is suitable that the tests change as little as possible during the successive integration of contributions. Therefore we will set a version of the tests at the beginning of integration, and only adapt it for the contributions that require an update of the tests.\\
+
+Let's consider the process of integration of contribution branches on top of \texttt{CY49} to build a \texttt{CY49T1}.
+For that purpose we would have set a reference experiment on \texttt{CY49}, hereafter named \texttt{x0}, generated with an identified version of the tests. That version of the tests would then be updated with \texttt{x0} as \textit{reference experiment} (\texttt{ref\_xpid}), and tagged \texttt{DV49}.
+All contributions to \texttt{CY49T1} would then be required to be tested with this version \texttt{DV49} (hence against reference experiment \texttt{x0}). Cf. section~\ref{sect:set_a_ref_tests_version} for more details about setting up a reference tests version and experiment.
+
+Suppose then that we have 5 of these contribution branches based on \texttt{CY49}, and an integration branch named \texttt{dev\_CY49\_toT1}. These 4 contributions may have different levels of reproducibility: they may conserve the results or not; they may require resources/tests adaptations (e.g. namelist updates, ...) or not, in which case they come with tests adaptations in an associated tests branch. Cf. the table :\\
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|l|c|}
+\hline
+ branch & results & test XPID & resources & tested with & integration XPID\\
+ \hline
+ \texttt{b1} & $=$ & \texttt{x1} & $=$ & \texttt{DV49} & \texttt{xi1}\\
+ \texttt{b2} & $\neq$ & \texttt{x2} & $=$ & \texttt{DV49} & \texttt{xi2}\\
+ \texttt{b3} & $=$ & \texttt{x3} & $\neq$ & $\rightarrow$ \texttt{DV49\_b3} & \texttt{xi3}\\
+ \texttt{b4} & $\neq$ & \texttt{x4} & $\neq$ & $\rightarrow$ \texttt{DV49\_b4} & \texttt{xi4}\\
+ \hline
+\end{tabular}
+\end{center}
+
+\noindent In parallel to the integration branch \texttt{dev\_CY49\_toT1}, we start a tests branch from \texttt{DV49} to collect the necessary adaptations of the tests, similarly named \texttt{dev\_DV49\_toT1}, which will be used to validate the integration branch, and updated as required along the integration.
+
+In case some intermediate versions of the integration branch are tagged and some branches are based/rebased on these tagged versions, we could also tag accordingly the tests branch if necessary.\\
+
+The reference experiment for the integration branch is at any moment, \textit{by default}, the experiment which tested the formerly integrated branch, e.g. the reference for \texttt{xi2} is \texttt{xi1}. However, that may not be true in some cases, some of these being potentially more tricky to validate, as will be shown in the following example.
+
+\subsubsection{Steps and updates in the Continuous Integration process}
+\begin{enumerate}[label=(\arabic*)]
+ \item Integration of \texttt{b1} :
+ \begin{itemize}
+  \item Reference: passing \texttt{-r x0} is optional as it is the default reference xp in \texttt{dev\_DV49\_toT1} config file
+  \item Tests: \texttt{b1} did not require to adapt the tests $\rightarrow$ we can test with branch \texttt{dev\_DV49\_toT1} unchanged (and still equal to \texttt{DV49})
+ \end{itemize}
+ \texttt{davai-prep\_xp dev\_CY49\_toT1 -v dev\_DV49\_toT1 [-r x0]}\\
+ $~~~\hookrightarrow~~~$ \texttt{xi1 == x1 == x0}
+
+ \item Integration of \texttt{b2} :
+ \begin{itemize}
+  \item Reference: \texttt{xi1} should normally be the reference xp, but since its results are bit-identical to \texttt{x0} as opposed to \texttt{x2}, it is more relevant to compare to \texttt{x2}, to check that the merge of \texttt{b1} and \texttt{b2} still give the same results as \texttt{b2}
+  \item Tests: \texttt{b2} did not require to adapt the tests $\rightarrow$ tests branch \texttt{DV49\_toT1} unchanged
+ \end{itemize}
+ \texttt{davai-prep\_xp dev\_CY49\_toT1 -v DV49\_toT1 -r \texttt{x2}}\\
+ $~~~\hookrightarrow~~~$ \texttt{xi2 == x2}
+
+ \item Integration of \texttt{b3} :
+ \begin{itemize}
+  \item Reference: \texttt{b3} does not change the results, so reference experiment is as expected by default \texttt{xi2}
+  \item Tests: \texttt{b3} requires tests adaptations (\texttt{DV49\_b3}) $\rightarrow$ update \texttt{dev\_DV49\_toT1} by merging \texttt{DV49\_b3} in
+ \end{itemize}
+ \texttt{davai-prep\_xp dev\_CY49\_toT1 -v DV49\_toT1 -r xi2}\\
+ $~~~\hookrightarrow~~~$ \texttt{xi3 == xi2}
+ 
+ \item Integration of \texttt{b4} : \textit{(where it becomes more or less tricky)}
+ \begin{itemize}
+  \item Reference: \texttt{b4} changes the results, but the results of \texttt{xi3} (current default reference for integration branch) are also changed from \texttt{x0} (since \texttt{b2}) $\rightarrow$ the reference experiment becomes less obvious !\\
+  The choice of the reference should be made depending on the width of impact on both sides:
+  \begin{enumerate}[label=\alph*)]
+   \item if there is more differences in the results between \texttt{dev\_CY49\_toT1} and \texttt{CY49} than between \texttt{b4} and \texttt{CY49}:\\
+   $\rightarrow$ \texttt{xi3} should be taken as reference, and the differences finely compared to those shown in \texttt{x4}
+   \item if there is more differences in the results between \texttt{b4} and \texttt{CY49} than between \texttt{dev\_CY49\_toT1} and \texttt{CY49}:\\
+   $\rightarrow$ \texttt{x4} should be taken as reference, and the differences finely compared to those shown in \texttt{xi3'}, where \texttt{xi3'} is a \textit{``witness''} experiment comparing the integration branch after integration of \texttt{b3} (commit \texttt{<c3>}) to \texttt{CY49} (experiment \texttt{x0}):\\
+   \texttt{davai-prep\_xp <c3> -v dev\_DV49\_toT1 -r x0}\\
+   $~~~\hookrightarrow~~~$ \texttt{xi3'}
+  \end{enumerate}
+  This is still OK if the tests affected by \texttt{dev\_CY49\_toT1} (via \texttt{b2}) and the tests affected by \texttt{b4} are not the same subset, or if at least if the affected fields are not the same. If they are (e.g. numerical differences that propagate prognostically through the model), the conclusion becomes much more difficult !!!\\
+  In this case, we do not really have explicit recommendation; the integrators should double-check the result of the merge with the author of the contribution \texttt{b4}. Any idea welcome to sort it out.
+  \item Tests: \texttt{b4} requires tests adaptations (\texttt{DV49\_b4}) $\rightarrow$ update \texttt{dev\_DV49\_toT1} by merging in \texttt{DV49\_b4} in
+ \end{itemize}
+ \texttt{davai-prep\_xp dev\_CY49\_toT1 -v dev\_DV49\_toT1 -r (xi3|x4)}\\
+   $~~~\hookrightarrow~~~$ \texttt{xi4}
+\end{enumerate}
+
+\subsection{Setting up a reference version of the tests and an associated reference experiment\label{sect:set_a_ref_tests_version}}
+We describe here how to set up a reference version of the tests and an associated reference experiment, typically for developments based on a given IAL release to be validated against this release.
+
+For the example, let's consider \texttt{CY49} and setting up a \texttt{DV49} version for it, including its reference experiment, to validate the contributions to \texttt{CY49T1}.
+\begin{enumerate}[label=\arabic*),start=0]
+ \item Choose an initial version of the tests you want to be used. It may probably not be the previous reference one (e.g. \texttt{DV48T2} or \texttt{dev\_CY48T1\_toT2}), as we may often want to modify or add tests in between cycles.
+ \item Make a branch starting from this version and check it out, e.g.:\\
+ \texttt{git checkout -b on\_49 [<chosen\_initial\_ref]}
+ \item Set the reference experiment:\\
+ \texttt{davai-prep\_xp CY49 -v on\_49 -u ELP --remote local [-x "archive\_as\_ref=True,ignore\_reference=True"]}\\
+ $\hookrightarrow$ \texttt{dv-xxxx-machine@user}\\
+ Note:
+ \begin{itemize}
+  \item As ELP usecase encompasses NRV, reference experiments should use this usecase so it could be used as a reference for both usecases.
+  \item \texttt{--remote local} to force Davaï not to look for a  remote version of the tests, which is the default behaviour
+  \item you can set on-the-fly parameters into the experiment config file using argument \texttt{-x}; in this case:
+  \begin{itemize}
+   \item the experiment will serve as a reference, so we want to archive its results on the archiving machine
+   \item if you are confident enough with the test version, it may not be useful to compare the experiment to any reference one.
+  \end{itemize}
+ \end{itemize}
+ \item Run the experiment
+ \item Update the \texttt{DAVAI-tests} repository:
+ \begin{itemize}
+  \item default config file for this machine (\texttt{conf/<machine>.ini}: with the name of this experiment as \texttt{ref\_xpid} (and potentially the usecase chosen in minor case as \texttt{ref\_vconf})
+  \item \texttt{README.md}: the table of correspondance of branches and tests
+ \end{itemize}
+ Then commit, tag (\texttt{DV49}) and push:
+ \begin{verbatim}
+  git commit -am "Set reference experiment for <machine> as <dv-xxxx-machine@user>"
+  git tag DV49
+  git push <remote>
+  git push <remote> DV49
+ \end{verbatim}
+\end{enumerate}
+
+\noindent This way the tests experiment generated using \texttt{davai-prep\_xp -v DV49} will use this version and be compared to this reference experiment.
+
+
+
+
+
+
+
+
+\newpage
+\section{Internal organization of DAVAÏ}
+
+\begin{figure}[h!]\hspace{-2cm}
+ \begin{center}\hspace{-2cm}
+  \fbox{\includegraphics[scale=0.4]{../figures/davai_ecosystem_h.pdf}}
+ \end{center}
+ \caption{\label{fig:davai_ecosystem} DAVAI packages.}
 \end{figure}
 
 
 
-\subsection{When and in which branch to add/modify tests ?}
-
-The tests modifications which are not intrinsically linked with a contribution (adding tests or modifying a test to modify its behaviour) can be done at any moment, in a development branch of the tests repository. However, in order not to disturb the users and integrators, they should be merged into the next official version of tests (i.e. the version used for contributions and integrations to IAL) only between a declaration of a IAL release and a call for contribution.
-
-\newpage
-\begin{appendix}
-
-\section{Template: Integration Request by e-mail\label{appx:template}}
-
-\vspace{1cm}
-
-\textbf{BRANCH:} mary\_CY49\_superdev\\
-\textbf{BASE in MF's S.C.R.:} CY49 (or commit if no tag)\\
-\textbf{TARGET in MF's S.C.R.:} CY49T1\\
-\textbf{AUTHOR(s):} A.Mary, G.Faure\\
-
-\noindent\textbf{DOCUMENTATION:}\\
-Scientific and technical doc, incl. namelist changes...\\
-
-\noindent\textbf{NUMERICAL IMPACT:}\\
-Kind of configurations, magnitude of impact, memory, CPU, or what bug it fixes, ...\\
-Please mention "Bit-Reproducible" if so.\\
-
-\noindent\textbf{VALIDATION EXPERIMENT:}\\
-DAVAÏ experiment ID and link to Ciboulaï page if possible\\
-Explanation in case of KO tests.\\
-
-\noindent\textbf{SUGGESTED TECHNICAL REVIEWER:}\\
-One or two suggested thematic expert(s) to review the technical implementation of the proposed contribution.\\
-
-\noindent\textbf{MODIFIED SOURCE FILES:}\\
-...\\
-
-\noindent\textbf{DELETED SOURCE FILES:}\\
-...\\
-
-\noindent\textbf{RENAMED SOURCE FILES:}\\
-...\\
-
-\noindent\textbf{ADDED SOURCE FILES:}\\
-...\\
-
 \end{appendix}
-
-
 \end{document}

@@ -12,12 +12,14 @@ import socket
 import io
 import copy
 import subprocess
+import datetime
 
 package_rootdir = os.path.dirname(os.path.dirname(os.path.realpath(__path__[0])))  # realpath to resolve symlinks
 __version__ = io.open(os.path.join(package_rootdir, 'VERSION'), 'r').read().strip()
 
 # fixed parameters
 davai_rc = os.path.join(os.environ['HOME'], '.davairc')
+davai_profile = os.path.join(davai_rc, 'profile')
 davai_xp_counter = os.path.join(os.environ['HOME'], '.davairc', '.last_xp')
 davai_xpid_syntax = 'dv-{xpid_num:04}-{host}@{user}'
 davai_xpid_re = re.compile('^' + davai_xpid_syntax.replace('{xpid_num:04}', '\d+').
@@ -83,7 +85,7 @@ def next_xp_num():
     return next_num
 
 
-def init():
+def init(token=None):
     """
     Initialize Davai env for user.
     """
@@ -110,22 +112,41 @@ def init():
     # link bin (to have command line tools in PATH)
     link = os.path.join(davai_rc, 'bin')
     this_repo_bin = os.path.join(this_repo, 'bin')
-    if os.path.exists(link) or os.path.islink(link):
-        overwrite = input("Relink '{}' to '{}' ? (y/n) : ".format(link, this_repo_bin)) in ('y', 'Y')
-        if overwrite:
-            os.unlink(link)
+    if os.path.islink(link) or os.path.exists(link):
+        if os.path.islink(link) and os.readlink(link) == this_repo_bin:
+            link = False
         else:
-            link = None
+            overwrite = input("Relink '{}' to '{}' ? (y/n) : ".format(link, this_repo_bin)) in ('y', 'Y')
+            if overwrite:
+                os.unlink(link)
+            else:
+                link = None
             print("Warning: initialization might not be consistent with existing link !")
     if link:
         os.symlink(this_repo_bin, link)
-        print("To finalize setup, please export and/or copy to ~/.bash_profile:")
-        print("export PATH=$PATH:{}".format(link))
+        export_path = "export PATH=$PATH:{}\n".format(link)
+        with io.open(davai_profile, 'a') as p:
+            p.write(export_path)
+    # token
+    if token:
+        export_token_in_profile(token)
+    # profile
+    bash_profile = os.path.join(os.environ['HOME'], '.bash_profile')
+    with io.open(bash_profile, 'r') as b:
+        sourced = any([davai_profile in l for l in b.readlines()])
+    if not sourced:
+        source = ['# DAVAI profile\n',
+                  'if [ -f {} ]; then\n'.format(davai_profile),
+                  '. {}\n'.format(davai_profile),
+                  'fi\n',
+                  '\n']
+        with io.open(bash_profile, 'a') as b:
+            b.writelines(source)
     print("------------------------------")
-    print("DAVAI initialization completed.")
+    print("DAVAI initialization completed. Re-login or source {} to finalize.".format(davai_profile))
 
 
-def update(pull=False):
+def update(pull=False, token=None):
     """Update DAVAI-env and DAVAI-tests repositories using `git fetch`."""
     print("Update repo {} ...".format(DAVAI_TESTS_REPO))
     subprocess.check_call(['git', 'fetch', 'origin'], cwd=DAVAI_TESTS_REPO)
@@ -133,9 +154,16 @@ def update(pull=False):
     subprocess.check_call(['git', 'fetch', 'origin'], cwd=this_repo)
     if pull:
         subprocess.check_call(['git', 'pull', 'origin'], cwd=this_repo)
-    subprocess.check_call(['git', 'submodule', 'update'], cwd=this_repo)
+    if token:
+        export_token_in_profile(token)
 
 
 def default_mtooldir():
     MTOOLDIR = expandpath(config['paths'].get('mtooldir'))
     return MTOOLDIR
+
+
+def export_token_in_profile(token):
+    with io.open(davai_profile, 'a') as p:
+        p.write("export CIBOULAI_TOKEN={}  # update: {}\n".format(token, str(datetime.date.today())))
+

@@ -8,6 +8,7 @@
 TODO
 
 # doc tex
+doc/figures/*.png
 doc/pdf
 doc/*/*.pdf
 doc/*/*.aux
