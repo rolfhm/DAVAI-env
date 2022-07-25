@@ -90,8 +90,8 @@ To be used in `davai-prep_xp -v <davai_tests_version> [-r <ref_xpid>] ...`
 | Merge branch CY49 | `CY48T3` | `DV48T3` | (tbd) |
 | 48T3 dev branch | `mary_CY48T2_to_T3` | `dev_DV48T3` | `dv-0133-belenos@mary` |
 | Development on top of 48T2 | `CY48T2` | `dev` | `dv-0133-belenos@mary` |
-| Dble branch `gco_CY48T1_op1` | `gco_CY48T1_op1` | `dev_DV48T1_op1` | `dv-0016-belenos@moureauxm` |
-| _Development on top of_ `48T1_op0.04` | `CY48T1_op0.04` | `DV48T1_op0.04-1` | `dv-0016-belenos@moureauxm` |
+| Dble branch `gco_CY48T1_op1` | `gco_CY48T1_op1` | `dev_DV48T1_op1` | `dv-0018-belenos@moureauxm` |
+| _Development on top of_ `48T1_op0.04` | `CY48T1_op0.04` | `DV48T1_op0.04-2` | `dv-0018-belenos@moureauxm` |
 
 Lexicon
 -------
