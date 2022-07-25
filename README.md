@@ -42,6 +42,7 @@ Installation
 Local pre-requirements:
 * for [`belenos`@MF](doc/belenos.md)
 
+User settings:
 1. Clone this repository, e.g. in `~/repositories/`:\
    `git clone https://github.com/ACCORD-NWP/DAVAI-env.git`
 2. Initialize your DAVAI environment:
