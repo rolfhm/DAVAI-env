@@ -55,12 +55,15 @@ class AnXP(object):
         self.comment = comment if comment is not None else IAL_git_ref
         self.vconf = usecase.lower()
         self.host = host
-        self.XP_path = os.path.join(expandpath(config['paths']['experiments']),
-                                    self.xpid, 'davai', self.vconf)
+        self.XP_path = self.XP_path_generator(self.xpid, self.vconf)
         self.logs_directory = expandpath(config['paths']['logs'])
         self.packages = {p:config['packages'][p] for p in config['packages']}
         # dev mode links tasks/runs to modify them easily, but is dangerous cause they may be switched later on !
         self.dev_mode = os.environ.get('DAVAI_DEV_MODE', False) == '1'
+
+    @staticmethod
+    def XP_path_generator(xpid, vconf):
+        return os.path.join(expandpath(config['paths']['experiments']), xpid, 'davai', vconf)
 
     @property
     def host_XP_config_file(self):
