@@ -176,7 +176,8 @@ class AnXP(object):
                     self.XP_config_file)
         to_set_in_config = {k:getattr(self, k)
                             for k in
-                            ('IAL_git_ref', 'IAL_repository', 'usecase', 'comment', 'ref_xpid', 'compiling_system')}
+                            ('IAL_git_ref', 'IAL_repository', 'usecase', 'comment', 'ref_xpid', 'compiling_system',
+                             'tests_version')}
         to_set_in_config.update(self.fly_conf_parameters)
         # and replace:
         print("------------------------------------")
@@ -188,7 +189,7 @@ class AnXP(object):
             if line[0] not in (' ', '#', '['):  # special lines
                 for k, v in to_set_in_config.items():
                     if k == 'IAL_repository': v = expandpath(v)
-                    pattern = '(?P<k>{}\s*=).*\n'.format(k)
+                    pattern = '^(?P<k>{}\s*=).*\n'.format(k)
                     match = re.match(pattern, line)
                     if match and v is not None:
                         config[i] = match.group('k') + ' {}\n'.format(v)
