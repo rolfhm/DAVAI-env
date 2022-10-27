@@ -200,15 +200,15 @@ class AnXP(object):
 
     def _set_runs(self):
         """Set run-wrapping scripts."""
-        runs = ['RUN_XP.sh', '0.setup_ciboulai.sh']
-        if self.usecase == 'ELP':
+        runs = ['RUN_XP.sh', '0.setup_ciboulai.sh', '2.tests.sh']
+        if self.usecase in ('NRV', 'ELP'):
             runs.append('2.NRV_tests.sh')
+            if self.usecase == 'ELP':
+                runs.append('2.ELP_tests.sh')
         for r in runs:
             self._set(os.path.join(DAVAI_TESTS_REPO, 'src', 'runs', r), r)
         self._set(os.path.join(DAVAI_TESTS_REPO, 'src', 'runs', '1.{}_build.sh'.format(self.compiling_system)),
                   '1.build.sh')
-        self._set(os.path.join(DAVAI_TESTS_REPO, 'src', 'runs', '2.{}_tests.sh'.format(self.usecase)),
-                  '2.tests.sh')
 
     def _link_packages(self):
         """Link necessary packages in XP."""
