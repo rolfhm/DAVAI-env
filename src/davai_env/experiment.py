@@ -15,6 +15,8 @@ import shutil
 import io
 import re
 import subprocess
+import configparser
+from yaml import Loader, load
 
 from . import config, DAVAI_TESTS_REPO, davai_xpid_syntax
 from . import guess_host, next_xp_num, expandpath
@@ -232,3 +234,102 @@ class AnXP(object):
         print("* if necessary, tune experiment in {}".format(self.XP_config_file))
         print("* launch using: ./RUN_XP.sh")
         print("------------------------------------")
+
+
+class ThisXP(object):
+    """Handles the existing experiment determined by the current working directory."""
+
+    def __init__(self):
+        self._parse_my_xp_config()
+        self.assert_cwd_is_an_xp()
+
+    @property
+    def vapp(self):
+        return os.path.basename(os.path.dirname(os.getcwd()))
+
+    @property
+    def vconf(self):
+        return os.path.basename(os.getcwd())
+
+    @property
+    def usecase(self):
+        return self.vconf.upper()
+
+    @property
+    def vapp_vconf_config_file(self):
+        """Path of the conf/$vapp_$vconf.ini file."""
+        return os.path.join('conf','{}_{}.ini'.format(self.vapp, self.vconf))
+
+    def cwd_is_an_xp(self):
+        """Whether the cwd is an actual experiment or not."""
+        return os.path.exists(self.vapp_vconf_config_file)
+
+    def assert_cwd_is_an_xp(self, command=None):
+        """Assert that the cwd is an actual experiment."""
+        if not self.cwd_is_an_xp():
+            if command is None:
+                raise Exception("Current working directory is not a Davai experiment directory")
+            else:
+                raise Exception("'{}' command should be ran from a Davai experiment directory".format(sys.argv[0]))
+
+    def _parse_my_xp_config(self):
+        """Parse the conf/my_xp.ini config."""
+        self.assert_cwd_is_an_xp()
+        config = configparser.ConfigParser()
+        config.read(os.path.join('conf', 'my_xp.ini'))
+        self.config = config['DEFAULT']
+
+    def parse_vapp_vconf_config(self):
+        """Parse and return the conf/$vapp_$vconf.ini config."""
+        self.assert_cwd_is_an_xp()
+        config = configparser.ConfigParser()
+        config.read(self.vapp_vconf_config_file)
+        return config
+
+    @property
+    def all_jobs(self):
+        """Get all jobs according to *usecase* (found in config)."""
+        jobs_list_file = 'conf/{}.yaml'.format(self.usecase)
+        with io.open(jobs_list_file, 'r') as fin:
+            all_jobs = load(fin, Loader)
+        return all_jobs
+
+    def print_jobs(self):
+        """Print all jobs according to *usecase* (found in config)."""
+        for family, jobs in self.all_jobs.items():
+            for job in jobs:
+                print('.'.join([family, job]))
+
+    def launch_jobs(self, only_job=None, drymode=False):
+        """Launch jobs, either all, or only the one requested."""
+        for family, jobs in self.all_jobs.items():
+            for job in jobs:
+                task = '.'.join([family, job])
+                name = job
+                if only_job in (None, task):
+                    self._launch(task, name, drymode=drymode)
+
+    def _launch(self, task, name,
+               drymode=False,
+               extra_parameters=dict()):
+        """
+        Launch one job.
+
+        :param task: submodule of the driver to be executed, e.g. assim.BSM_4D_arpege
+        :param name: name of the job, to get its confog characteristics (profile, ...)
+        :param extra_parameters: extra parameters to be passed to mkjob on the fly
+        """
+        cmd = ['python3', 'vortex/bin/mkjob.py', '-j',
+               'task={}'.format(task.strip()), 'name={}'.format(name.strip())]
+        cmd.extend(['{}={}'.format(k,v) for k,v in extra_parameters.items()])
+        print("Executing: '{}'".format(' '.join(cmd)))
+        if not drymode:
+            subprocess.check_call(cmd)
+
+    def launch_build(self, drymode=False):
+        """Launch build job."""
+        config = self.parse_vapp_vconf_config()
+        if config['DEFAULT']['compiling_system'] == 'gmkpack':
+            self._launch('build.gmkpack.build_from_gitref', 'build', drymode=drymode, **dict(self.config))
+        else:
+            raise NotImplementedError("compiling_system == {}".format(config['DEFAULT']['compiling_system']))
