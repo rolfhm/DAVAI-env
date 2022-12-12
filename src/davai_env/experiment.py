@@ -336,3 +336,23 @@ class ThisXP(object):
             self._launch('build.gmkpack.build_from_gitref', 'build', drymode=drymode, **dict(self.config))
         else:
             raise NotImplementedError("compiling_system == {}".format(config['DEFAULT']['compiling_system']))
+
+    def status(self, task=None):
+        from . import config, expandpath, default_mtooldir, davai_xpid_syntax, davai_xpid_re
+        # First we need MTOOLDIR set up for retrieving paths
+        if not os.environ.get('MTOOLDIR', None):
+            MTOOLDIR = default_mtooldir()
+            if MTOOLDIR:
+                os.environ['MTOOLDIR'] = MTOOLDIR
+        # Then set Vortex in path
+        vortexpath = expandpath(config['packages']['vortex'])
+        sys.path.extend([vortexpath, os.path.join(vortexpath, 'src'), os.path.join(vortexpath, 'site')])
+        # vortex/davai
+        import vortex
+        import davai
+        # process stack or task
+        stack = davai.util.SummariesStack(vortex.ticket(), self.vapp, self.vconf, self.xpid)
+        if task is None:
+            stack.tasks_status(print_it=True)
+        else:
+            stack.task_summary_fullpath(task)

@@ -15,39 +15,12 @@ import json
 # Automatically set the python path for davai_cmd
 repo_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, os.path.join(repo_path, 'src'))
-from davai_env import config, expandpath, default_mtooldir, davai_xpid_syntax, davai_xpid_re
-# vortex/davai
-# First we need MTOOLDIR set up for retrieving paths
-if not os.environ.get('MTOOLDIR', None):
-    MTOOLDIR = default_mtooldir()
-    if MTOOLDIR:
-        os.environ['MTOOLDIR'] = MTOOLDIR
-# Then set Vortex in path
-vortexpath = expandpath(config['packages']['vortex'])
-sys.path.extend([vortexpath, os.path.join(vortexpath, 'src'), os.path.join(vortexpath, 'site')])
-import vortex
-import davai
+from davai_env.experiment import ThisXP
 
 
 def main(task=None):
-    # guess context
-    pwd = os.getcwd()
-    vconf = os.path.basename(pwd)
-    vapp = os.path.basename(os.path.dirname(pwd))
-    xpid = os.path.basename(os.path.dirname(os.path.dirname(pwd)))
-    configfile = 'conf/davai_{}.ini'.format(vconf)
-    # check that we are in a Davai experiment
-    msg = "Current directory does not look like a Davai experiment: "
-    assert vapp == 'davai', msg + "Directory pwd-1 should be 'davai'"
-    assert os.path.exists(configfile), msg + "Config file '{}' not found".format(configfile)
-    assert davai_xpid_re.match(xpid) or re.match('\d+-.+@\w+', xpid), \
-            msg + "Directory pwd-2 should look like " + davai_xpid_syntax + " or 0057-branch@user (old syntax)"
-    # process stack or task
-    stack = davai.util.SummariesStack(vortex.ticket(), vapp, vconf, xpid)
-    if task is None:
-        stack.tasks_status(print_it=True)
-    else:
-        stack.task_summary_fullpath(task)
+    this_xp = ThisXP()
+    this_xp.status(task)
 
 
 if __name__ == '__main__':
