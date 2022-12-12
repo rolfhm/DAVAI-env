@@ -1,0 +1,8 @@
+#/usr/bin/bash
+# RUN THE EXPERIMENT ENTIRELY FROM SCRATCH
+
+davai-xp_register || { echo "Ciboulai setup failed: fix before running tests. Exit."; exit 1; }
+echo "davai-xp_run: Let's go for the build !"
+davai-xp_build || { echo "Build failed: cannot run tests. Exit."; exit 1; }
+echo "davai-xp_run: Let's go for the tests !"
+davai-xp_runtests
