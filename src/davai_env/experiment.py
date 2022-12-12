@@ -240,8 +240,12 @@ class ThisXP(object):
     """Handles the existing experiment determined by the current working directory."""
 
     def __init__(self):
-        self._parse_my_xp_config()
         self.assert_cwd_is_an_xp()
+        self._parse_my_xp_config()
+
+    @property
+    def xpid(self):
+        return os.path.basename(os.path.dirname(os.path.dirname(os.getcwd())))
 
     @property
     def vapp(self):
@@ -274,7 +278,6 @@ class ThisXP(object):
 
     def _parse_my_xp_config(self):
         """Parse the conf/my_xp.ini config."""
-        self.assert_cwd_is_an_xp()
         config = configparser.ConfigParser()
         config.read(os.path.join('conf', 'my_xp.ini'))
         self.config = config['DEFAULT']
