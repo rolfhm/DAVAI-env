@@ -22,6 +22,13 @@ from . import config, DAVAI_TESTS_REPO, davai_xpid_syntax
 from . import guess_host, next_xp_num, expandpath
 
 
+def vconf2usecase(vconf):
+    return vconf.upper()
+
+def usecase2vconf(usecase):
+    return usecase.lower()
+
+
 class AnXP(object):
     """Setup an XP."""
 
@@ -60,7 +67,7 @@ class AnXP(object):
                                              user=getpass.getuser())
         self.ref_xpid = self.xpid if ref_xpid == 'SELF' else ref_xpid
         self.comment = comment if comment is not None else IAL_git_ref
-        self.vconf = usecase.lower()
+        self.vconf = usecase2vconf(usecase)
         self.host = host
         self.XP_path = self.XP_path_generator(self.xpid, self.vconf)
         self.logs_directory = expandpath(config['paths']['logs'])
@@ -257,7 +264,7 @@ class ThisXP(object):
 
     @property
     def usecase(self):
-        return self.vconf.upper()
+        return vconf2usecase(self.vconf)
 
     @property
     def vapp_vconf_config_file(self):
