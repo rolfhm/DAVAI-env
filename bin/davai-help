@@ -3,7 +3,12 @@
 echo "Available *davai* commands:"
 echo "    davai-init                     => initialize Davai API"
 echo "    davai-prep_xp                  => prepare a testing experiment"
-echo "    davai-shelf                    => move *shelves* of input data"
+echo "    davai-xp_run                   => run the whole experiment: ciboulai init, build, tests"
+echo "    davai-xp_initciboulai          => (re-)initialize the experiment in ciboulai dashboard"
+echo "    davai-xp_build                 => build executables for the experiment"
+echo "    davai-xp_runtests              => run tests"
+echo "    davai-xp_status                => check status of tests, in case of non-availablility of ciboulai dashboard"
+echo "    davai-update                   => update local DAVAI-env and DAVAI-tests repositories"
 echo "    (Help available with option -h for each command)"
 echo "-------------------------------------------------------------------------"
 

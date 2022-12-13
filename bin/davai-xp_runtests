@@ -20,6 +20,7 @@ def main(only_job=None,
     else:
         this_xp.launch_jobs(only_job=only_job,
                             drymode=drymode)
+        this_xp.afterlaunch_prompt()
 
 
 if __name__ == "__main__":

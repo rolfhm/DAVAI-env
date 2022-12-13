@@ -25,7 +25,10 @@ if __name__ == "__main__":
                         help="Silent mode")
     args = parser.parse_args()
 
-    if args.silent:
-        main()
-    else:
-        print(main())
+    try:
+        if args.silent:
+            main()
+        else:
+            print(main())
+    except AssertionError as e:
+        print("Error: {}".format(e))

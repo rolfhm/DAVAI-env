@@ -241,7 +241,7 @@ class ThisXP(object):
 
     def __init__(self):
         self.assert_cwd_is_an_xp()
-        self._parse_my_xp_config()
+        #self._parse_my_xp_config()
 
     @property
     def xpid(self):
@@ -270,11 +270,7 @@ class ThisXP(object):
 
     def assert_cwd_is_an_xp(self, command=None):
         """Assert that the cwd is an actual experiment."""
-        if not self.cwd_is_an_xp():
-            if command is None:
-                raise Exception("Current working directory is not a Davai experiment directory")
-            else:
-                raise Exception("'{}' command should be ran from a Davai experiment directory".format(sys.argv[0]))
+        assert self.cwd_is_an_xp(), "Current working directory is not a Davai experiment directory"
 
     def _parse_my_xp_config(self):
         """Parse the conf/my_xp.ini config."""
@@ -284,10 +280,9 @@ class ThisXP(object):
 
     def parse_vapp_vconf_config(self):
         """Parse and return the conf/$vapp_$vconf.ini config."""
-        self.assert_cwd_is_an_xp()
         config = configparser.ConfigParser()
         config.read(self.vapp_vconf_config_file)
-        return config
+        self.conf = config
 
     @property
     def all_jobs(self):
@@ -329,13 +324,19 @@ class ThisXP(object):
         if not drymode:
             subprocess.check_call(cmd)
 
-    def launch_build(self, drymode=False):
-        """Launch build job."""
-        config = self.parse_vapp_vconf_config()
-        if config['DEFAULT']['compiling_system'] == 'gmkpack':
-            self._launch('build.gmkpack.build_from_gitref', 'build', drymode=drymode, **dict(self.config))
-        else:
-            raise NotImplementedError("compiling_system == {}".format(config['DEFAULT']['compiling_system']))
+    #def launch_build(self, drymode=False):
+    #    """Launch build job."""
+    #    config = self.parse_vapp_vconf_config()
+    #    if config['DEFAULT']['compiling_system'] == 'gmkpack':
+    #        self._launch('build.gmkpack.build_from_gitref', 'build', drymode=drymode, **dict(self.config))
+    #    else:
+    #        raise NotImplementedError("compiling_system == {}".format(config['DEFAULT']['compiling_system']))
+
+    def afterlaunch_prompt(self):
+        print("=" * 100)
+        print("=== {:^92} ===".format("DAVAI {} test bench launched through job scheduler !".format(self.usecase)))
+        print("=== {:^92} ===".format("Checkout Ciboulai for results on: {}".format(self.conf['DEFAULT']['davai_server'])))
+        print("=" * 100)
 
     def status(self, task=None):
         from . import config, expandpath, default_mtooldir, davai_xpid_syntax, davai_xpid_re

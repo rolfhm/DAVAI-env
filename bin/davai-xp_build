@@ -2,17 +2,10 @@
 # BUILD EXECUTABLES
 
 davai-cwd_is_xp -s || exit 1
-#ok=$?
-#if [ "$ok" != "0" ];then
-#  echo "ERROR: The current working directory is is not an experiment ! Exit"
-#  exit 1
-#fi
 
 # superseding arguments
-arg=""
 if [ "$1" == "preexisting_pack=True" ] || [ "$1" == "preexisting_pack=False" ];then
     echo "Conf attribute '$1' superseded by commandline argument."
-    arg=$1
 elif [ "$1" != "" ];then
     echo "Commandline argument '$1' ignored."
 fi
@@ -21,7 +14,7 @@ fi
 python3 vortex/bin/mkjob.py -j profile=rd name=build_init task=build.wait4build_init
 # build
 export DAVAI_START_BUILD=`python -c "import time; print(time.time())"`
-python3 vortex/bin/mkjob.py -j name=build task=build.gmkpack.build_from_gitref $arg
+python3 vortex/bin/mkjob.py -j name=build task=build.gmkpack.build_from_gitref $1
 # wait & check for build
 export MTOOLDIR=/scratch/mtool/$LOGNAME  # needed to find cached expertise output of build
 python3 vortex/bin/mkjob.py -j profile=rd name=build task=build.wait4build
