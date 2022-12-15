@@ -1,0 +1,10 @@
+#/usr/bin/bash
+
+if [ "$1" == "-h" ]; then
+    echo "(Re-)initialize the experiment in CIBOULAI"
+    exit 0
+fi
+
+davai-cwd_is_xp || exit 1
+
+python3 vortex/bin/mkjob.py -j profile=rd name=ciboulai_xpsetup task=ciboulai_xpsetup

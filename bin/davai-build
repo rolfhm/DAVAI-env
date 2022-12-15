@@ -1,0 +1,33 @@
+#!/usr/bin/env python
+# -*- coding:Utf-8 -*-
+
+import os
+import sys
+import argparse
+
+# Automatically set the python path for davai_cmd
+repo_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, os.path.join(repo_path, 'src'))
+from davai_env.experiment import ThisXP
+
+
+def main(preexisting_pack=False,
+         drymode=False):
+    this_xp = ThisXP()
+    this_xp.launch_build(drymode=drymode,
+                         preexisting_pack=preexisting_pack)
+
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description='Build executables. To be executed from the XP directory !')
+    parser.add_argument('-e', '--preexisting_pack',
+                        action='store_true',
+                        help="Assume the pack already preexists.")
+    parser.add_argument('--drymode',
+                        action='store_true',
+                        help="Dry mode: print commands to be executed, but do not run them")
+    args = parser.parse_args()
+
+    main(preexisting_pack=args.preexisting_pack,
+         drymode=args.drymode)

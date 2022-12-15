@@ -17,9 +17,9 @@ import re
 import subprocess
 import configparser
 from yaml import Loader, load
+import time
 
-from . import config, DAVAI_TESTS_REPO, davai_xpid_syntax
-from . import guess_host, next_xp_num, expandpath
+from . import config, DAVAI_TESTS_REPO, davai_xpid_syntax, set_default_mtooldir, guess_host, next_xp_num, expandpath
 
 
 def vconf2usecase(vconf):
@@ -99,7 +99,7 @@ class AnXP(object):
         self._set_XP_path()
         self._set_conf()
         self._set_tasks(take_from_remote=take_tests_version_from_remote)
-        self._set_runs()
+        #self._set_runs()
         self._link_packages()
         self._link_logs()
         self._end_of_setup_prompt()
@@ -207,17 +207,17 @@ class AnXP(object):
             f.writelines(config)
         print("------------------------------------")
 
-    def _set_runs(self):
-        """Set run-wrapping scripts."""
-        runs = ['RUN_XP.sh', '0.setup_ciboulai.sh', '2.tests.sh']
-        if self.usecase in ('NRV', 'ELP'):
-            runs.append('2.NRV_tests.sh')
-            if self.usecase == 'ELP':
-                runs.append('2.ELP_tests.sh')
-        for r in runs:
-            self._set(os.path.join(DAVAI_TESTS_REPO, 'src', 'runs', r), r)
-        self._set(os.path.join(DAVAI_TESTS_REPO, 'src', 'runs', '1.{}_build.sh'.format(self.compiling_system)),
-                  '1.build.sh')
+    #def _set_runs(self):
+    #    """Set run-wrapping scripts."""
+    #    runs = ['RUN_XP.sh', '0.setup_ciboulai.sh', '2.tests.sh']
+    #    if self.usecase in ('NRV', 'ELP'):
+    #        runs.append('2.NRV_tests.sh')
+    #        if self.usecase == 'ELP':
+    #            runs.append('2.ELP_tests.sh')
+    #    for r in runs:
+    #        self._set(os.path.join(DAVAI_TESTS_REPO, 'src', 'runs', r), r)
+    #    self._set(os.path.join(DAVAI_TESTS_REPO, 'src', 'runs', '1.{}_build.sh'.format(self.compiling_system)),
+    #              '1.build.sh')
 
     def _link_packages(self):
         """Link necessary packages in XP."""
@@ -248,7 +248,7 @@ class ThisXP(object):
 
     def __init__(self):
         self.assert_cwd_is_an_xp()
-        #self._parse_my_xp_config()
+        self.parse_vapp_vconf_config()
 
     @property
     def xpid(self):
@@ -279,11 +279,11 @@ class ThisXP(object):
         """Assert that the cwd is an actual experiment."""
         assert self.cwd_is_an_xp(), "Current working directory is not a Davai experiment directory"
 
-    def _parse_my_xp_config(self):
-        """Parse the conf/my_xp.ini config."""
-        config = configparser.ConfigParser()
-        config.read(os.path.join('conf', 'my_xp.ini'))
-        self.config = config['DEFAULT']
+    #def _parse_my_xp_config(self):
+    #    """Parse the conf/my_xp.ini config."""
+    #    config = configparser.ConfigParser()
+    #    config.read(os.path.join('conf', 'my_xp.ini'))
+    #    self.config = config['DEFAULT']
 
     def parse_vapp_vconf_config(self):
         """Parse and return the conf/$vapp_$vconf.ini config."""
@@ -316,7 +316,7 @@ class ThisXP(object):
 
     def _launch(self, task, name,
                drymode=False,
-               extra_parameters=dict()):
+               **extra_parameters):
         """
         Launch one job.
 
@@ -331,13 +331,23 @@ class ThisXP(object):
         if not drymode:
             subprocess.check_call(cmd)
 
-    #def launch_build(self, drymode=False):
-    #    """Launch build job."""
-    #    config = self.parse_vapp_vconf_config()
-    #    if config['DEFAULT']['compiling_system'] == 'gmkpack':
-    #        self._launch('build.gmkpack.build_from_gitref', 'build', drymode=drymode, **dict(self.config))
-    #    else:
-    #        raise NotImplementedError("compiling_system == {}".format(config['DEFAULT']['compiling_system']))
+    def launch_build(self,
+                     drymode=False,
+                     preexisting_pack=False):
+        """Launch build job."""
+        os.environ['DAVAI_START_BUILD'] = str(time.time())
+        if self.conf['DEFAULT']['compiling_system'] == 'gmkpack':
+            # run build job
+            self._launch('build.gmkpack.build_from_gitref', 'build',
+                         drymode=drymode,
+                         preexisting_pack=preexisting_pack)
+        else:
+            raise NotImplementedError("compiling_system == {}".format(self.conf['DEFAULT']['compiling_system']))
+        # run build monitoring
+        set_default_mtooldir()
+        self._launch('build.wait4build', 'build',
+                     drymode=drymode,
+                     profile='rd')
 
     def afterlaunch_prompt(self):
         print("=" * 100)
@@ -346,12 +356,8 @@ class ThisXP(object):
         print("=" * 100)
 
     def status(self, task=None):
-        from . import config, expandpath, default_mtooldir, davai_xpid_syntax, davai_xpid_re
         # First we need MTOOLDIR set up for retrieving paths
-        if not os.environ.get('MTOOLDIR', None):
-            MTOOLDIR = default_mtooldir()
-            if MTOOLDIR:
-                os.environ['MTOOLDIR'] = MTOOLDIR
+        set_default_mtooldir()
         # Then set Vortex in path
         vortexpath = expandpath(config['packages']['vortex'])
         sys.path.extend([vortexpath, os.path.join(vortexpath, 'src'), os.path.join(vortexpath, 'site')])

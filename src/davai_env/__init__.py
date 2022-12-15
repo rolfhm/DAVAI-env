@@ -163,6 +163,13 @@ def default_mtooldir():
     return MTOOLDIR
 
 
+def set_default_mtooldir():
+    if not os.environ.get('MTOOLDIR', None):
+        MTOOLDIR = default_mtooldir()
+        if MTOOLDIR:
+            os.environ['MTOOLDIR'] = MTOOLDIR
+
+
 def export_token_in_profile(token):
     with io.open(davai_profile, 'a') as p:
         p.write("export CIBOULAI_TOKEN={}  # update: {}\n".format(token, str(datetime.date.today())))
