@@ -16,7 +16,7 @@ import io
 import re
 import subprocess
 import configparser
-from yaml import Loader, load
+import yaml
 import time
 
 from . import config, DAVAI_TESTS_REPO, davai_xpid_syntax, set_default_mtooldir, guess_host, next_xp_num, expandpath
@@ -32,12 +32,13 @@ def usecase2vconf(usecase):
 class AnXP(object):
     """Setup an XP."""
 
+    particular_config_file = os.path.join('conf', 'this_xp.yaml')
+
     def __init__(self, IAL_git_ref,
                  tests_version,
                  IAL_repository=config['paths']['IAL_repository'],
                  usecase=config['defaults']['usecase'],
                  compiling_system=config['defaults']['compiling_system'],
-                 ref_xpid=None,
                  comment=None,
                  host=guess_host(),
                  fly_conf_parameters=dict()):
@@ -65,7 +66,6 @@ class AnXP(object):
         self.xpid = davai_xpid_syntax.format(xpid_num=next_xp_num(),
                                              host=host,
                                              user=getpass.getuser())
-        self.ref_xpid = self.xpid if ref_xpid == 'SELF' else ref_xpid
         self.comment = comment if comment is not None else IAL_git_ref
         self.vconf = usecase2vconf(usecase)
         self.host = host
@@ -80,13 +80,13 @@ class AnXP(object):
         return os.path.join(expandpath(config['paths']['experiments']), xpid, 'davai', vconf)
 
     @property
-    def host_XP_config_file(self):
+    def host_general_config_file(self):
         """Relative path of XP config file, according to host."""
         return os.path.join(DAVAI_TESTS_REPO, 'conf', '{}.ini'.format(self.host))
 
     @property
-    def XP_config_file(self):
-        """Relative path of local XP config file."""
+    def general_config_file(self):
+        """Relative path of local XP general config file."""
         return os.path.join('conf', 'davai_{}.ini'.format(self.vconf))
 
     def setup(self, take_tests_version_from_remote='origin'):
@@ -98,6 +98,7 @@ class AnXP(object):
         """
         self._set_XP_path()
         self._set_conf()
+        self._update_general_config(**self.fly_conf_parameters)
         self._set_tasks(take_from_remote=take_tests_version_from_remote)
         #self._set_runs()
         self._link_packages()
@@ -121,8 +122,8 @@ class AnXP(object):
             else:
                 shutil.copytree(source, target)
 
-    @classmethod
-    def set_tests_version(cls, gitref, take_from_remote='origin'):
+    @staticmethod
+    def set_tests_version(gitref, take_from_remote='origin'):
         """Check that requested tests version exists, and switch to it."""
         remote_gitref = '{}/{}'.format(take_from_remote, gitref)
         branches = subprocess.check_output(['git', 'branch'],
@@ -178,32 +179,49 @@ class AnXP(object):
                   'tasks')
 
     def _set_conf(self):
-        """Copy and update XP config file."""
-        # initialize
+        """Set config files."""
         os.makedirs('conf')
-        shutil.copy(self.host_XP_config_file,
-                    self.XP_config_file)
-        to_set_in_config = {k:getattr(self, k)
-                            for k in
-                            ('IAL_git_ref', 'IAL_repository', 'usecase', 'comment', 'ref_xpid', 'compiling_system',
-                             'tests_version')}
-        to_set_in_config.update(self.fly_conf_parameters)
-        # and replace:
+        # general config
+        shutil.copy(self.host_general_config_file,
+                    self.general_config_file)
+        # usecase config : set of tests
+        shutil.copy(os.path.join(DAVAI_TESTS_REPO, 'conf', '{}.yaml'.format(self.usecase)),
+                    os.path.join('conf', '.'))
+        # particular config
+        self._set_particular_config()
+
+    def _set_particular_config(self):
+        """Particular config: parameters that vary from one testing XP to another of the same tests version."""
+        particular_config = {k:getattr(self, k)
+                             for k in
+                             ('IAL_git_ref', 'IAL_repository', 'comment', 'tests_version')}
+        particular_config['IAL_repository'] = expandpath(particular_config['IAL_repository'])
+        with io.open(self.particular_config_file, 'w') as f:
+            yaml.dump(particular_config, f)
+
+    @classmethod
+    def read_particular_config(cls):
+        """Particular config: parameters that vary from one testing XP to another of the same tests version."""
+        with io.open(cls.particular_config_file, 'r') as f:
+            config = yaml.load(f, yaml.Loader)
+        return config
+
+    def _update_general_config(self, **to_update):
+        """Update general config for the experiment."""
         print("------------------------------------")
-        print("Config setting ({}/{}) :".format(self.xpid, self.XP_config_file))
+        print("Config update :")
         # (here we do not use ConfigParser to keep the comments)
-        with io.open(self.XP_config_file, 'r') as f:
+        with io.open(self.general_config_file, 'r') as f:
             config = f.readlines()
         for i, line in enumerate(config):
             if line[0] not in (' ', '#', '['):  # special lines
-                for k, v in to_set_in_config.items():
-                    if k == 'IAL_repository': v = expandpath(v)
+                for k, v in to_update.items():
                     pattern = '^(?P<k>{}\s*=).*\n'.format(k)
                     match = re.match(pattern, line)
                     if match and v is not None:
                         config[i] = match.group('k') + ' {}\n'.format(v)
                         print(" -> {}".format(config[i].strip()))
-        with io.open(self.XP_config_file, 'w') as f:
+        with io.open(self.general_config_file, 'w') as f:
             f.writelines(config)
         print("------------------------------------")
 
@@ -234,12 +252,11 @@ class AnXP(object):
 
     def _end_of_setup_prompt(self):
         print("------------------------------------")
-        print("DAVAI xp has been successfully setup:")
-        print("* XPID:", self.xpid)
-        print("* XP path:", self.XP_path)
-        print("=> Now go to the XP path above and:")
-        print("* if necessary, tune experiment in {}".format(self.XP_config_file))
-        print("* launch using: ./RUN_XP.sh")
+        print("DAVAI xp '{}' has been successfully setup !".format(self.xpid))
+        print("Now go to the XP path below and:")
+        print("- if necessary, tune experiment in {}".format(self.general_config_file))
+        print("- run experiment using: davai-run_xp")
+        print("  =>", self.XP_path)
         print("------------------------------------")
 
 
@@ -296,7 +313,7 @@ class ThisXP(object):
         """Get all jobs according to *usecase* (found in config)."""
         jobs_list_file = 'conf/{}.yaml'.format(self.usecase)
         with io.open(jobs_list_file, 'r') as fin:
-            all_jobs = load(fin, Loader)
+            all_jobs = yaml.load(fin, yaml.Loader)
         return all_jobs
 
     def print_jobs(self):
@@ -331,16 +348,27 @@ class ThisXP(object):
         if not drymode:
             subprocess.check_call(cmd)
 
+    def launch_ciboulai_init(self):
+        """(Re-)Initialize Ciboulai dashboard."""
+        particular_config = AnXP.read_particular_config()
+        self._launch('ciboulai_xpsetup', 'ciboulai_xpsetup',
+                     profile='rd',
+                     usecase=self.usecase,
+                     **particular_config)
+
     def launch_build(self,
                      drymode=False,
                      preexisting_pack=False):
         """Launch build job."""
+        particular_config = AnXP.read_particular_config()
         os.environ['DAVAI_START_BUILD'] = str(time.time())
         if self.conf['DEFAULT']['compiling_system'] == 'gmkpack':
             # run build job
             self._launch('build.gmkpack.build_from_gitref', 'build',
                          drymode=drymode,
-                         preexisting_pack=preexisting_pack)
+                         preexisting_pack=preexisting_pack,
+                         IAL_repository=particular_config['IAL_repository'],
+                         IAL_git_ref=particular_config['IAL_git_ref'])
         else:
             raise NotImplementedError("compiling_system == {}".format(self.conf['DEFAULT']['compiling_system']))
         # run build monitoring

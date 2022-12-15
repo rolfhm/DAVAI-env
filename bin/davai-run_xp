@@ -5,8 +5,8 @@ if [ "$1" == "-h" ]; then
     exit 0
 fi
 
-davai-xp_initciboulai || { echo "Ciboulai init failed: fix before running tests. Exit."; exit 1; }
+davai-init_ciboulai || { echo "Ciboulai init failed: fix before running tests. Exit."; exit 1; }
 echo "davai-xp_run: Ciboulai init OK => let's go for the build !"
-davai-xp_build || { echo "Build failed: cannot run tests. Exit."; exit 1; }
+davai-build || { echo "Build failed: cannot run tests. Exit."; exit 1; }
 echo "davai-xp_run: Build OK => let's go for the tests !"
-davai-xp_runtests
+davai-run_tests

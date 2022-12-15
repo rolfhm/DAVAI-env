@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+# -*- coding:Utf-8 -*-
+
+import os
+import sys
+import argparse
+
+# Automatically set the python path for davai_cmd
+repo_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, os.path.join(repo_path, 'src'))
+from davai_env.experiment import ThisXP
+
+
+def main():
+    this_xp = ThisXP()
+    this_xp.launch_ciboulai_init()
+
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description="(Re-)Initialize experiment in Ciboulai dashboard server. " +
+                                                 "To be executed from the XP directory !")
+    args = parser.parse_args()
+
+    main()
