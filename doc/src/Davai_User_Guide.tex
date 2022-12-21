@@ -80,15 +80,15 @@ To use DAVAÏ to test your contribution to the next development release, you nee
 \subsubsection{Setup your experiment}
 \begin{enumerate}[label=(\alph*)]
  \item Create your experiment, specifying which version of the tests you want to use:\\
- \texttt{davai-prep\_xp \textit{<my\_branch>} -v \textit{<tests\_version>}}\\
- (e.g. \texttt{davai-prep\_xp mary\_CY48T1\_cleaning -v DV48T1})\\
+ \texttt{davai-new\_xp \textit{<my\_branch>} -v \textit{<tests\_version>}}\\
+ (e.g. \texttt{davai-new\_xp mary\_CY48T1\_cleaning -v DV48T1})\\
  $\hookrightarrow$ An experiment with a unique experiment ID is created and prompted as output of the command, together with its path.\\
  \\
  \underline{Note:} to know what is the version to be used for a given development:
  \begin{itemize}
   \item for now, please refer to \texttt{DAVAI-env/README.md}\\
         (visible here: \href{https://github.com/ACCORD-NWP/DAVAI-env}{https://github.com/ACCORD-NWP/DAVAI-env}
-  \item see \texttt{davai-prep\_xp -h} for more options on this command, e.g. to specify a reference experiment that is not the default one for the version of the tests.
+  \item see \texttt{davai-new\_xp -h} for more options on this command, e.g. to specify a reference experiment that is not the default one for the version of the tests.
   \item see Appendix~\ref{sect:tests_versioning} for a more comprehensive approach to tests versioning.
  \end{itemize}
  \underline{Note2:} If the version you are requesting is not known, you may need to update the tests repository before, using command: \texttt{davai-update}
@@ -181,7 +181,7 @@ To use DAVAÏ to test your contribution to the next development release, you nee
 \newpage
 \subsection{How it works, briefly}
 \subsubsection{Organisation of an experiment}
-The \texttt{davai-prep\_xp} command-line prepares a ``testing experiment'' directory, named after an incremental number, the platform and the user.
+The \texttt{davai-new\_xp} command-line prepares a ``testing experiment'' directory, named after an incremental number, the platform and the user.
 
 \noindent This testing experiment will consist in:
 \begin{itemize}
@@ -287,7 +287,7 @@ When a test fails and the user wants to re-run it, it is possible to do so witho
 
 \subsection{\label{sect:investigating}Investigating a problem}
 
-The \textit{\textbf{usecase}} parameter of an experiment (to be set in the \texttt{davai-prep\_xp} command) determines the span of tests to be generated and run. Several usecases have been \textit{(or will be)} implemented with various purposes:
+The \textit{\textbf{usecase}} parameter of an experiment (to be set in the \texttt{davai-new\_xp} command) determines the span of tests to be generated and run. Several usecases have been \textit{(or will be)} implemented with various purposes:
   \begin{itemize}
    \item \texttt{NRV} (default): Non-Regression Validation, minimal set of tests that any contribution must pass.
    \item \texttt{ELP}: Exploration and Localization of Problems, extended set of isolated components, to help localizing an issue
@@ -317,7 +317,7 @@ To reduce the tests that are innerly looped (e.g. the loop on observation types 
 
 \subsection{Build options}
 The choice of a build system is done by argument at the creation of an experiment:\\
-\texttt{davai-prep\_xp --compiling\_system gmkpack}\\
+\texttt{davai-new\_xp --compiling\_system gmkpack}\\
 command-line. However, at time of writing, only \texttt{gmkpack} is available within DAVAÏ.
 \subsubsection{Build with \texttt{gmkpack}}
 In the \texttt{[gmkpack]} section of config file \texttt{conf/davai\_*.ini}:
@@ -479,7 +479,7 @@ The reference experiment for the integration branch is at any moment, \textit{by
   \item Reference: passing \texttt{-r x0} is optional as it is the default reference xp in \texttt{dev\_DV49\_toT1} config file
   \item Tests: \texttt{b1} did not require to adapt the tests $\rightarrow$ we can test with branch \texttt{dev\_DV49\_toT1} unchanged (and still equal to \texttt{DV49})
  \end{itemize}
- \texttt{davai-prep\_xp dev\_CY49\_toT1 -v dev\_DV49\_toT1 [-r x0]}\\
+ \texttt{davai-new\_xp dev\_CY49\_toT1 -v dev\_DV49\_toT1 [-r x0]}\\
  $~~~\hookrightarrow~~~$ \texttt{xi1 == x1 == x0}
 
  \item Integration of \texttt{b2} :
@@ -487,7 +487,7 @@ The reference experiment for the integration branch is at any moment, \textit{by
   \item Reference: \texttt{xi1} should normally be the reference xp, but since its results are bit-identical to \texttt{x0} as opposed to \texttt{x2}, it is more relevant to compare to \texttt{x2}, to check that the merge of \texttt{b1} and \texttt{b2} still give the same results as \texttt{b2}
   \item Tests: \texttt{b2} did not require to adapt the tests $\rightarrow$ tests branch \texttt{DV49\_toT1} unchanged
  \end{itemize}
- \texttt{davai-prep\_xp dev\_CY49\_toT1 -v DV49\_toT1 -r \texttt{x2}}\\
+ \texttt{davai-new\_xp dev\_CY49\_toT1 -v DV49\_toT1 -r \texttt{x2}}\\
  $~~~\hookrightarrow~~~$ \texttt{xi2 == x2}
 
  \item Integration of \texttt{b3} :
@@ -495,7 +495,7 @@ The reference experiment for the integration branch is at any moment, \textit{by
   \item Reference: \texttt{b3} does not change the results, so reference experiment is as expected by default \texttt{xi2}
   \item Tests: \texttt{b3} requires tests adaptations (\texttt{DV49\_b3}) $\rightarrow$ update \texttt{dev\_DV49\_toT1} by merging \texttt{DV49\_b3} in
  \end{itemize}
- \texttt{davai-prep\_xp dev\_CY49\_toT1 -v DV49\_toT1 -r xi2}\\
+ \texttt{davai-new\_xp dev\_CY49\_toT1 -v DV49\_toT1 -r xi2}\\
  $~~~\hookrightarrow~~~$ \texttt{xi3 == xi2}
  
  \item Integration of \texttt{b4} : \textit{(where it becomes more or less tricky)}
@@ -507,14 +507,14 @@ The reference experiment for the integration branch is at any moment, \textit{by
    $\rightarrow$ \texttt{xi3} should be taken as reference, and the differences finely compared to those shown in \texttt{x4}
    \item if there is more differences in the results between \texttt{b4} and \texttt{CY49} than between \texttt{dev\_CY49\_toT1} and \texttt{CY49}:\\
    $\rightarrow$ \texttt{x4} should be taken as reference, and the differences finely compared to those shown in \texttt{xi3'}, where \texttt{xi3'} is a \textit{``witness''} experiment comparing the integration branch after integration of \texttt{b3} (commit \texttt{<c3>}) to \texttt{CY49} (experiment \texttt{x0}):\\
-   \texttt{davai-prep\_xp <c3> -v dev\_DV49\_toT1 -r x0}\\
+   \texttt{davai-new\_xp <c3> -v dev\_DV49\_toT1 -r x0}\\
    $~~~\hookrightarrow~~~$ \texttt{xi3'}
   \end{enumerate}
   This is still OK if the tests affected by \texttt{dev\_CY49\_toT1} (via \texttt{b2}) and the tests affected by \texttt{b4} are not the same subset, or if at least if the affected fields are not the same. If they are (e.g. numerical differences that propagate prognostically through the model), the conclusion becomes much more difficult !!!\\
   In this case, we do not really have explicit recommendation; the integrators should double-check the result of the merge with the author of the contribution \texttt{b4}. Any idea welcome to sort it out.
   \item Tests: \texttt{b4} requires tests adaptations (\texttt{DV49\_b4}) $\rightarrow$ update \texttt{dev\_DV49\_toT1} by merging in \texttt{DV49\_b4} in
  \end{itemize}
- \texttt{davai-prep\_xp dev\_CY49\_toT1 -v dev\_DV49\_toT1 -r (xi3|x4)}\\
+ \texttt{davai-new\_xp dev\_CY49\_toT1 -v dev\_DV49\_toT1 -r (xi3|x4)}\\
    $~~~\hookrightarrow~~~$ \texttt{xi4}
 \end{enumerate}
 
@@ -527,7 +527,7 @@ For the example, let's consider \texttt{CY49} and setting up a \texttt{DV49} ver
  \item Make a branch starting from this version and check it out, e.g.:\\
  \texttt{git checkout -b on\_49 [<chosen\_initial\_ref]}
  \item Set the reference experiment:\\
- \texttt{davai-prep\_xp CY49 -v on\_49 -u ELP --remote local [-x "archive\_as\_ref=True,ignore\_reference=True"]}\\
+ \texttt{davai-new\_xp CY49 -v on\_49 -u ELP --remote local [-x "archive\_as\_ref=True,ignore\_reference=True"]}\\
  $\hookrightarrow$ \texttt{dv-xxxx-machine@user}\\
  Note:
  \begin{itemize}
@@ -554,7 +554,7 @@ For the example, let's consider \texttt{CY49} and setting up a \texttt{DV49} ver
  \end{verbatim}
 \end{enumerate}
 
-\noindent This way the tests experiment generated using \texttt{davai-prep\_xp -v DV49} will use this version and be compared to this reference experiment.
+\noindent This way the tests experiment generated using \texttt{davai-new\_xp -v DV49} will use this version and be compared to this reference experiment.
 
 
 

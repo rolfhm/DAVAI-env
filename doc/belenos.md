@@ -4,7 +4,7 @@ Complementary information about DAVAI on `belenos` HPC machine @ MF
 Installation
 ------------
 
-1. Load modules (conveniently in your .bash_profile):\
+1. Load modules (conveniently in your `.bash_profile`):\
    `module load python/3.7.6`\
    `module load git`
 2. Configure your ~/.netrc file for FTP communications with archive machine hendrix, if not already done:\
@@ -17,7 +17,7 @@ Installation
    **AND**\
    `ftmotpasse -h hendrix.meteo.fr -u <your_user>`\
    (same)
-4. Configure Git proxy certificate info (conveniently in your .bash_profile):\
+4. Configure Git proxy certificate info (conveniently in your `.bash_profile`):\
    `export GIT_SSL_CAINFO=/opt/softs/certificats/proxy1.pem`
 5. Ensure SSH connectivity between compute and transfer nodes, if not already done:\
    `cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys`

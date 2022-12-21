@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding:Utf-8 -*-
 """
-Create a Davai experiment based on a **git_ref**.
+Create a new Davai experiment.
 """
 from __future__ import print_function, absolute_import, unicode_literals, division
 
@@ -15,50 +15,38 @@ import io
 repo_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, os.path.join(repo_path, 'src'))
 from davai_env import guess_host, config
-from davai_env.experiment import AnXP
+from davai_env.experiment import XPmaker
 
 DAVAI_HOST = guess_host()
 
 
-def main(tests_version,
+def main(davai_tests_version,
          IAL_git_ref,
          IAL_repository=config['paths']['IAL_repository'],
          usecase=config['defaults']['usecase'],
-         compiling_system=config['defaults']['compiling_system'],
          comment=None,
-         take_tests_version_from_remote='origin',
-         host=DAVAI_HOST,
-         fly_conf_parameters=dict()):
+         davai_tests_remote=config['defaults']['davai_tests_origin'],
+         host=DAVAI_HOST):
     """
     Setup an XP.
 
-    :param tests_version: version of the test bench to be used
+    :param davai_tests_version: version of the test bench to be used
     :param IAL_git_ref: the IFS-Arpege-LAM git reference to be tested
     :param IAL_repository: path to the IAL repository in which to get **IAL_git_ref** sources
     :param usecase: among NRV, ELP, PC, ...
-    :param compiling_system: the compiling system to be used, e.g. 'gmkpack'
     :param comment: descriptive comment for the experiment (defaults to **IAL_git_ref**)
-    :param take_tests_version_from_remote: to pick tests version from a remote in case of a branch
-        None, False or '' to pick local branch
+    :param davai_tests_remote: to pick tests version from a remote; None or False to pick local branch
     :param host: name of host machine, to link necessary packages and get according config file
         (otherwise guessed)
-    :param fly_conf_parameters: a dict of parameters to be modified on the fly in XP conf file
     """
-    # pre-check tests version
-    AnXP.set_tests_version(tests_version, take_from_remote=take_tests_version_from_remote)
-    # Set XP
-    XP = AnXP(IAL_git_ref,
-              tests_version=tests_version,
-              IAL_repository=IAL_repository,
-              usecase=usecase,
-              compiling_system=compiling_system,
-              comment=comment,
-              host=host,
-              fly_conf_parameters=fly_conf_parameters)
-    XP.setup(take_tests_version_from_remote=take_tests_version_from_remote)
-    # write command line in XP
-    with io.open(os.path.join(XP.XP_path, '.genesis'), 'w') as g:
-        g.write(" ".join(sys.argv))
+    xp = XPmaker.new_xp(davai_tests_version=davai_tests_version,
+                        particular_config=dict(IAL_git_ref=IAL_git_ref,
+                                               IAL_repository=IAL_repository,
+                                               comment=comment),
+                        davai_tests_remote=davai_tests_remote,
+                        usecase=usecase,
+                        host=host)
+    xp.write_genesis(" ".join(sys.argv))
 
 
 if __name__ == '__main__':
@@ -67,7 +55,8 @@ if __name__ == '__main__':
     parser.add_argument('IAL_git_ref',
                         help="IFS-Arpege-LAM Git reference to be tested")
     parser.add_argument('-v', '--tests_version',
-                        help="Version of the test bench to be used.",
+                        dest='davai_tests_version',
+                        help="Version of the Davai test bench to be used.",
                         required=True)
     parser.add_argument('-c', '--comment',
                         default=None,
@@ -82,36 +71,21 @@ if __name__ == '__main__':
                         default=config['defaults']['usecase'],
                         help="Usecase: NRV (restrained set of canonical tests) or ELP (extended elementary tests); " +
                              "More (PC, ...) to come. Defaults to: '{}'".format(config['defaults']['usecase']))
-    parser.add_argument('--compiling_system',
-                        default=config['defaults']['compiling_system'],
-                        help="the compiling system to be used, e.g. 'gmkpack'. " +
-                             "Defaults to: '{}'".format(config['defaults']['compiling_system']))
-    parser.add_argument('--remote',
-                        default='origin',
-                        help="to pick DAVAI-tests version from a remote in case of a branch;" +
-                             " None or False to pick local branch.")
+    parser.add_argument('--remote', '--davai_tests_remote',
+                        default=config['defaults']['davai_tests_origin'],
+                        dest='davai_tests_remote',
+                        help="DAVAI-tests remote reporitory to be used; defaults to '{}'".format(
+                            config['defaults']['davai_tests_origin']))
     parser.add_argument('--host',
                         default=DAVAI_HOST,
                         help="Generic name of host machine, in order to find paths to necessary packages. " +
                              ("Default is guessed ({}), or can be set through " +
                               "section 'hosts' of user config file").format(DAVAI_HOST))
-    parser.add_argument('-x', '--extra_conf_parameters',
-                        default=None,
-                        help="A dict of parameters to be modified on the fly in XP conf file, e.g. " +
-                             "'compilation_flavour=IMPIIFC2018.x, packtype=main'")
     args = parser.parse_args()
-    remote = False if args.remote in ('None', 'False', 'local') else args.remote
-    if args.extra_conf_parameters is None:
-        extra_conf_parameters = dict()
-    else:
-        extra_conf_parameters = {item.split('=')[0].strip():item.split('=')[1]
-                                 for item in args.extra_conf_parameters.split(',')}
 
-    main(args.tests_version, args.IAL_git_ref,
+    main(args.davai_tests_version, args.IAL_git_ref,
          IAL_repository=args.IAL_repository,
          usecase=args.usecase,
-         compiling_system=args.compiling_system,
          comment=args.comment,
-         take_tests_version_from_remote=remote,
-         host=args.host,
-         fly_conf_parameters=extra_conf_parameters)
+         davai_tests_remote=args.davai_tests_remote,
+         host=args.host)

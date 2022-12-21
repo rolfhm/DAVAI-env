@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+# -*- coding:Utf-8 -*-
+
+import os
+import sys
+import argparse
+
+# Automatically set the python path for davai_cmd
+repo_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, os.path.join(repo_path, 'src'))
+from davai_env.experiment import ThisXP
+
+
+def main():
+    this_xp = ThisXP()
+    return this_xp.davai_tests_version
+
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description='Prints the version of tests currently in use in this experiment.')
+    args = parser.parse_args()
+
+    print(main())

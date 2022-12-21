@@ -72,11 +72,11 @@ A Tutorial is available in the User Guide (cf. above).
 For a quick start:
 
 1. Prepare an experiment based on version `<v>` of the tests, to validate an IAL Git reference `<r>`:\
-   `davai-prep_xp <r> -v <v> [-h]`\
+   `davai-new_xp <r> -v <v> [-h]`\
    (you may need to specify the path to your IAL repository by argument, cf. options with `-h`)\
    To know what version of the tests to use, cf. below.
 2. Go to the prompted directory of the experiment (ending with `.../dv-<nnnn>-<platform>@<user>/davai/nrv/`)
-3. Run the tests: `./RUN_XP.sh` and monitor (standard output for the build, then job scheduler).
+3. Run the tests: `davai-run_xp` and monitor (standard output for the build, then job scheduler).
 
 Explanations to be found in the User Guide.
 
