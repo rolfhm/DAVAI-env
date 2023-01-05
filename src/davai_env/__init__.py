@@ -69,7 +69,7 @@ if os.path.exists(host_config_file):
 # and read again user config so that it overwrites host config
 if os.path.exists(user_config_file):
     config.read(user_config_file)
-DAVAI_TESTS_REPO = expandpath(config.get('paths', 'davai_tests_repo'))
+#DAVAI_TESTS_REPO = expandpath(config.get('paths', 'davai_tests_repo'))
 
 
 def next_xp_num():
@@ -100,11 +100,11 @@ def init(token=None):
             if '$' in p:
                 raise ValueError("config[paths][{}] is not expandable : '{}'".format(d, p))
             os.makedirs(p)
-    # tests repo
-    if not os.path.exists(DAVAI_TESTS_REPO):
-        print("Clone DAVAI-tests repository into '{}'...".format(DAVAI_TESTS_REPO))
-        subprocess.check_call(['git', 'clone', config.get('defaults', 'davai_tests_origin')],
-                              cwd=os.path.dirname(DAVAI_TESTS_REPO))
+    ## tests repo
+    #if not os.path.exists(DAVAI_TESTS_REPO):
+    #    print("Clone DAVAI-tests repository into '{}'...".format(DAVAI_TESTS_REPO))
+    #    subprocess.check_call(['git', 'clone', config.get('defaults', 'davai_tests_origin')],
+    #                          cwd=os.path.dirname(DAVAI_TESTS_REPO))
     # set rc
     print("Setup {} ...".format(davai_rc))
     if not os.path.exists(davai_rc):
@@ -148,8 +148,8 @@ def init(token=None):
 
 def update(pull=False, token=None):
     """Update DAVAI-env and DAVAI-tests repositories using `git fetch`."""
-    print("Update repo {} ...".format(DAVAI_TESTS_REPO))
-    subprocess.check_call(['git', 'fetch', 'origin'], cwd=DAVAI_TESTS_REPO)
+    #print("Update repo {} ...".format(DAVAI_TESTS_REPO))
+    #subprocess.check_call(['git', 'fetch', 'origin'], cwd=DAVAI_TESTS_REPO)
     print("Update repo {} ...".format(this_repo))
     subprocess.check_call(['git', 'fetch', 'origin'], cwd=this_repo)
     if pull:

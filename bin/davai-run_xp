@@ -1,12 +1,13 @@
 #/usr/bin/bash
 
 if [ "$1" == "-h" ]; then
-    echo "Run the whole experiment: ciboulai init, build, tests"
+    echo "$0 : Run the whole experiment => ciboulai init, build, tests"
+    echo "Arguments to 'davai-build' (e.g. -e) can be passed through this command"
     exit 0
 fi
 
-davai-init_ciboulai || { echo "Ciboulai init failed: fix before running tests. Exit."; exit 1; }
+davai-ciboulai_init || { echo "Ciboulai init failed: fix before running tests. Exit."; exit 1; }
 echo "davai-xp_run: Ciboulai init OK => let's go for the build !"
-davai-build || { echo "Build failed: cannot run tests. Exit."; exit 1; }
+davai-build $* || { echo "Build failed: cannot run tests. Exit."; exit 1; }
 echo "davai-xp_run: Build OK => let's go for the tests !"
 davai-run_tests

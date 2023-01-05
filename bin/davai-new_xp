@@ -20,30 +20,24 @@ from davai_env.experiment import XPmaker
 DAVAI_HOST = guess_host()
 
 
-def main(davai_tests_version,
-         IAL_git_ref,
-         IAL_repository=config['paths']['IAL_repository'],
+def main(sources_to_test,
+         davai_tests_version,
+         davai_tests_origin=config['defaults']['davai_tests_origin'],
          usecase=config['defaults']['usecase'],
-         comment=None,
-         davai_tests_remote=config['defaults']['davai_tests_origin'],
          host=DAVAI_HOST):
     """
     Setup an XP.
 
+    :param sources_to_test: information about the sources to be tested, provided as a dict
     :param davai_tests_version: version of the test bench to be used
-    :param IAL_git_ref: the IFS-Arpege-LAM git reference to be tested
-    :param IAL_repository: path to the IAL repository in which to get **IAL_git_ref** sources
+    :param davai_tests_origin: URL of the DAVAI-tests origin repository to be cloned in XP
     :param usecase: among NRV, ELP, PC, ...
-    :param comment: descriptive comment for the experiment (defaults to **IAL_git_ref**)
-    :param davai_tests_remote: to pick tests version from a remote; None or False to pick local branch
     :param host: name of host machine, to link necessary packages and get according config file
         (otherwise guessed)
     """
-    xp = XPmaker.new_xp(davai_tests_version=davai_tests_version,
-                        particular_config=dict(IAL_git_ref=IAL_git_ref,
-                                               IAL_repository=IAL_repository,
-                                               comment=comment),
-                        davai_tests_remote=davai_tests_remote,
+    xp = XPmaker.new_xp(sources_to_test=sources_to_test,
+                        davai_tests_version=davai_tests_version,
+                        davai_tests_origin=davai_tests_origin,
                         usecase=usecase,
                         host=host)
     xp.write_genesis(" ".join(sys.argv))
@@ -54,28 +48,43 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Create a Davai experiment based on a Git reference.')
     parser.add_argument('IAL_git_ref',
                         help="IFS-Arpege-LAM Git reference to be tested")
+    #sources = parser.add_mutually_exclusive_group(required=True)
+    #sources.add_argument('-g', '--IAL_git_ref',
+    #                     help="IFS-Arpege-LAM Git reference to be tested")
+    #sources.add_argument('-b', '--IAL_bundle',
+    #                     help="IAL bundle as registered in a IAL-bundle repository")
+    #sources.add_argument('-f', '--IAL_bundle_file',
+    #                     help="path to an IAL bundle file")
+    repos = parser.add_mutually_exclusive_group()
+    repos.add_argument('--IAL_repo',
+                       default=config['paths']['IAL_repository'],
+                       dest='IAL_repository',
+                       help="Path to IFS-Arpege-LAM Git repository in which to find 'IAL_git_ref' argument. " +
+                            ("Default ({}) can be set through section [paths] " +
+                             "of user config file").format(config['paths']['IAL_repository']))
+    #repos.add_argument('--IAL_bundle_repo',
+    #                   default=config['paths']['IAL_bundle_repository'],
+    #                   dest='IAL_bundle_repository',
+    #                   help="Path to IAL-bundle repository in which to find 'IAL_bundle' argument. " +
+    #                        ("Default ({}) can be set through section [paths] " +
+    #                         "of user config file").format(config['paths']['IAL_bundle_repository']))
     parser.add_argument('-v', '--tests_version',
                         dest='davai_tests_version',
                         help="Version of the Davai test bench to be used.",
                         required=True)
     parser.add_argument('-c', '--comment',
                         default=None,
-                        help="Comment about experiment. Defaults to IAL_git_ref.")
-    parser.add_argument('--repo', '--IAL_repository',
-                        default=config['paths']['IAL_repository'],
-                        dest='IAL_repository',
-                        help="Path to IFS-Arpege-LAM Git repository. " +
-                             ("Default ({}) can be set through section [paths] " +
-                              "of user config file").format(config['paths']['IAL_repository']))
+                        help="Comment about experiment. Defaults to IAL_git_ref, IAL_bundle or IAL_bundle_file.")
     parser.add_argument('-u', '--usecase',
                         default=config['defaults']['usecase'],
                         help="Usecase: NRV (restrained set of canonical tests) or ELP (extended elementary tests); " +
                              "More (PC, ...) to come. Defaults to: '{}'".format(config['defaults']['usecase']))
-    parser.add_argument('--remote', '--davai_tests_remote',
+    parser.add_argument('--origin', '--davai_tests_origin',
                         default=config['defaults']['davai_tests_origin'],
-                        dest='davai_tests_remote',
-                        help="DAVAI-tests remote reporitory to be used; defaults to '{}'".format(
-                            config['defaults']['davai_tests_origin']))
+                        dest='davai_tests_origin',
+                        help=("URL of the DAVAI-tests origin repository to be cloned in XP. " +
+                              "Default ({}) can be set through section [defaults] " +
+                              "of user config file").format(config['defaults']['davai_tests_origin']))
     parser.add_argument('--host',
                         default=DAVAI_HOST,
                         help="Generic name of host machine, in order to find paths to necessary packages. " +
@@ -83,9 +92,18 @@ if __name__ == '__main__':
                               "section 'hosts' of user config file").format(DAVAI_HOST))
     args = parser.parse_args()
 
-    main(args.davai_tests_version, args.IAL_git_ref,
-         IAL_repository=args.IAL_repository,
+    if 'IAL_git_ref' in args:
+        sources_to_test = dict(IAL_git_ref=args.IAL_git_ref,
+                               IAL_repository=args.IAL_repository)
+    elif 'IAL_bundle' in args:
+        sources_to_test = dict(IAL_bundle=args.IAL_bundle,
+                               IAL_bundle_repository=args.IAL_bundle_repository)
+    elif 'IAL_bundle_file' in args:
+        sources_to_test = dict(IAL_bundle_file=args.IAL_bundle_file)
+    sources_to_test['comment'] = args.comment
+
+    main(sources_to_test,
+         args.davai_tests_version,
+         davai_tests_origin=args.davai_tests_origin,
          usecase=args.usecase,
-         comment=args.comment,
-         davai_tests_remote=args.davai_tests_remote,
          host=args.host)

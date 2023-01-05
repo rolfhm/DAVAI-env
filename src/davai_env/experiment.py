@@ -48,10 +48,19 @@ class XPmaker(object):
         print("XP path created : {}".format(xp_path))
 
     @classmethod
-    def new_xp(cls, davai_tests_version, particular_config,
-               davai_tests_remote=config['defaults']['davai_tests_origin'],
+    def new_xp(cls, sources_to_test, davai_tests_version,
+               davai_tests_origin=config['defaults']['davai_tests_origin'],
                usecase=config['defaults']['usecase'],
                host=guess_host()):
+        """
+        Create a new experiment.
+
+        :param sources_to_test: information about the sources to be tested, provided as a dict
+        :param davai_tests_version: version of the DAVAI-tests to be used
+        :param davai_tests_origin: origin repository of the DAVAI-tests to be cloned
+        :param usecase: type of set of tests to be prepared
+        :param host: host machine
+        """
 
         assert usecase in ('NRV', 'ELP'), "Usecase not implemented yet: " + usecase
         xp_path = cls._new_XP_path(host, usecase)
@@ -59,8 +68,8 @@ class XPmaker(object):
         # now XP path is created, we move in for the continuation of the experiment setup
         os.chdir(xp_path)
         xp = ThisXP(new=True)
-        xp.setup(davai_tests_version, particular_config,
-                 davai_tests_remote=davai_tests_remote,
+        xp.setup(sources_to_test, davai_tests_version,
+                 davai_tests_origin=davai_tests_origin,
                  usecase=usecase,
                  host=host)
         return xp
@@ -70,7 +79,11 @@ class ThisXP(object):
     """Handles the existing experiment determined by the current working directory."""
 
     davai_tests_dir = 'DAVAI-tests'
-    particular_config_file = os.path.join('conf', 'this_xp.yaml')
+    sources_to_test_file = os.path.join('conf', 'sources.yaml')
+    sources_to_test_minimal_keys = (set(('IAL_git_ref',)),
+                                    set(('IAL_bundle',)),
+                                    set(('IAL_bundle_file',))
+                                    )
 
     def __init__(self, new=False):
         self.xp_path = os.getcwd()
@@ -84,19 +97,27 @@ class ThisXP(object):
 
 # setup --------------------------------------------------------------------------------------------------------------
 
-    def setup(self, davai_tests_version, particular_config,
-              davai_tests_remote=config['defaults']['davai_tests_origin'],
+    def setup(self, sources_to_test, davai_tests_version,
+              davai_tests_origin=config['defaults']['davai_tests_origin'],
               usecase=config['defaults']['usecase'],
               host=guess_host()):
-        """Setup the experiment (at creation time)."""
+        """
+        Setup the experiment (at creation time).
+
+        :param sources_to_test: information about the sources to be tested, provided as a dict
+        :param davai_tests_version: version of the DAVAI-tests to be used
+        :param davai_tests_origin: remote repository of the DAVAI-tests to be cloned
+        :param usecase: type of set of tests to be prepared
+        :param host: host machine
+        """
         # set DAVAI-tests repo
-        self._setup_DAVAI_tests(davai_tests_remote, davai_tests_version)
+        self._setup_DAVAI_tests(davai_tests_origin, davai_tests_version)
         self._setup_tasks()
         self._setup_packages()
         self._setup_logs()
         # configuration files
         os.makedirs('conf')
-        self._setup_conf_particular(particular_config)
+        self._setup_conf_sources(sources_to_test)
         self._setup_conf_usecase(usecase)
         self._setup_conf_general(host)
         self._setup_final_prompt()
@@ -151,19 +172,20 @@ class ThisXP(object):
         subprocess.check_call(['git', 'clone', remote, self.davai_tests_dir])
         os.chdir(self.davai_tests_dir)
         subprocess.check_call(['git', 'fetch', 'origin', version, '-q'])
-        #subprocess.check_call(['git', 'checkout', '-t', 'origin/{}'.format(version)])
         self._checkout_davai_tests(version)
         os.chdir(self.xp_path)
 
-    def _setup_conf_particular(self, particular_config):
-        """Particular config: parameters meant to vary from one XP to another, and not version controlled."""
-        # complete particular config
-        if particular_config.get('comment', None) is None:
-            particular_config['comment'] = particular_config['IAL_git_ref']
-        repo = particular_config.get('IAL_repository', config['paths']['IAL_repository'])
-        particular_config['IAL_repository'] = expandpath(repo)
-        with io.open(self.particular_config_file, 'w') as f:
-            yaml.dump(particular_config, f)
+    def check_sources_to_test(self, sources_to_test):
+        assertion_test = any([s.issubset(set(sources_to_test.keys())) for s in self.sources_to_test_minimal_keys])
+        assertion_errmsg = "The set of keys in 'sources_to_test' should contain one of: {}".format(
+                           self.sources_to_test_minimal_keys)
+        assert assertion_test, assertion_errmsg
+
+    def _setup_conf_sources(self, sources_to_test):
+        """Sources config: information on sources to be tested."""
+        self.check_sources_to_test(sources_to_test)
+        with io.open(self.sources_to_test_file, 'w') as f:
+            yaml.dump(sources_to_test, f)
 
     def _setup_conf_usecase(self, usecase):
         """Usecase config : set of jobs/tests."""
@@ -173,7 +195,7 @@ class ThisXP(object):
 
     def _setup_conf_general(self, host=guess_host()):
         """General config file for the jobs."""
-        host_general_config_file = os.path.join(self.davai_tests_dir, 'conf', '{}.ini'.format(host))
+        host_general_config_file = os.path.join('..', self.davai_tests_dir, 'conf', '{}.ini'.format(host))
         os.symlink(host_general_config_file,
                    self.general_config_file)
 
@@ -233,12 +255,31 @@ class ThisXP(object):
         return self._conf
 
     @property
-    def particular_config(self):
-        """Particular config: parameters meant to vary from one XP to another, and not version controlled."""
-        if not hasattr(self, '_particular_config'):
-            with io.open(self.particular_config_file, 'r') as f:
-                self._particular_config = yaml.load(f, yaml.Loader)
-        return self._particular_config
+    def sources_to_test(self):
+        """Sources config: information on sources to be tested."""
+        if not hasattr(self, '_sources_to_test'):
+            with io.open(self.sources_to_test_file, 'r') as f:
+                c = yaml.load(f, yaml.Loader)
+            self.check_sources_to_test(c)
+            # complete particular config
+            if 'IAL_git_ref' in c:
+                # sources to be tested taken from IAL_git_ref@IAL_repository
+                if c.get('comment', None) is None:
+                    c['comment'] = c['IAL_git_ref']
+                repo = c.get('IAL_repository', config['paths']['IAL_repository'])
+                c['IAL_repository'] = expandpath(repo)
+            elif 'IAL_bundle' in c:
+                # sources to be tested taken from IAL_bundle@IAL_bundle_repository
+                if c.get('comment', None) is None:
+                    c['comment'] = c['IAL_bundle']
+                repo = c.get('IAL_bundle_repository', config['paths']['IAL_bundle_repository'])
+                c['IAL_bundle_repository'] = expandpath(repo)
+            elif 'IAL_bundle_file' in c:
+                # sources to be tested taken from IAL_bundle_file
+                if c.get('comment', None) is None:
+                    c['comment'] = c['IAL_bundle_file']
+            self._sources_to_test = c
+        return self._sources_to_test
 
     @property
     def all_jobs(self):
@@ -288,7 +329,7 @@ class ThisXP(object):
                      profile='rd',
                      usecase=self.usecase,
                      tests_version=self.davai_tests_version,
-                     **self.particular_config)
+                     **self.sources_to_test)
 
     def launch_build(self,
                      drymode=False,
@@ -296,19 +337,18 @@ class ThisXP(object):
         """Launch build job."""
         os.environ['DAVAI_START_BUILD'] = str(time.time())
         if self.conf['DEFAULT']['compiling_system'] == 'gmkpack':
-            if 'IAL_git_ref' in self.particular_config:
+            if 'IAL_git_ref' in self.sources_to_test:
                 # build from a single IAL Git reference
-                assert 'IAL_repository' in self.particular_config
-                self._launch('build.gmkpack.build_from_gitref', 'build',
-                             drymode=drymode,
-                             preexisting_pack=preexisting_pack,
-                             IAL_repository=self.particular_config['IAL_repository'],
-                             IAL_git_ref=self.particular_config['IAL_git_ref'])
-            elif 'bundle' in self.particular_config or 'bundle_file' in self.particular_config:
+                build_job = 'build.gmkpack.build_from_gitref'
+            elif 'IAL_bundle' in self.sources_to_test or 'IAL_bundle_file' in self.sources_to_test:
                 # build from a bundle
-                raise NotImplementedError("Build from a bundle: not yet !")
+                build_job = 'build.gmkpack.build_from_bundle'
             else:
-                raise KeyError("Particular config should contain one of: ('IAL_git_ref', 'bundle', 'bundle_file')")
+                raise KeyError("Particular config should contain one of: ('IAL_git_ref', 'IAL_bundle', 'IAL_bundle_file')")
+            self._launch(build_job, 'build',
+                         drymode=drymode,
+                         preexisting_pack=preexisting_pack,
+                         **self.sources_to_test)
         else:
             raise NotImplementedError("compiling_system == {}".format(self.conf['DEFAULT']['compiling_system']))
         # run build monitoring
