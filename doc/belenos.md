@@ -19,6 +19,7 @@ Installation
    (same)
 4. Configure Git proxy certificate info (conveniently in your `.bash_profile`):\
    `export GIT_SSL_CAINFO=/opt/softs/certificats/proxy1.pem`
+   `git config --global http.sslVerify false`
 5. Ensure SSH connectivity between compute and transfer nodes, if not already done:\
    `cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys`
 

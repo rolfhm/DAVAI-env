@@ -1,7 +1,7 @@
 #/usr/bin/bash
 
 if [ "$1" == "-h" ]; then
-    echo "$0 : Run the whole experiment => ciboulai init, build, tests"
+    echo "$0 : Run the whole experiment => davai-ciboulai_init, davai-build, davai-run_tests"
     echo "Arguments to 'davai-build' (e.g. -e) can be passed through this command"
     exit 0
 fi

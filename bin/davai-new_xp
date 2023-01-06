@@ -8,8 +8,6 @@ from __future__ import print_function, absolute_import, unicode_literals, divisi
 import os
 import argparse
 import sys
-import subprocess
-import io
 
 # Automatically set the python path for davai_cmd
 repo_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

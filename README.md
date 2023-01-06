@@ -42,13 +42,17 @@ Installation
 Local pre-requirements:
 * for [`belenos`@MF](doc/belenos.md)
 
-User settings:
+To setup on a pre-installed machine (e.g. `belenos`@MF):
+1. belenos: `~mary/public/DAVAI-env/master/bin/davai-init`
+   atos@bologna: `~rm9/public/DAVAI-env/master/bin/davai-init`
+2. Re-login or source `~/.davairc/profile` to finalize.
+
+To setup your own install:
 1. Clone this repository, e.g. in `~/repositories/`:\
    `git clone https://github.com/ACCORD-NWP/DAVAI-env.git`
 2. Initialize your DAVAI environment:
-   - `cd DAVAI-env`
-   - if you want to inspect possible customizations: `bin/davai-init -s`
-   - `make init` (or `bin/davai-init`) --- Note that this will also clone the _**DAVAI-tests**_ repository
+   - if you want to inspect possible customizations: `DAVAI-env/bin/davai-init -s`
+   - initialize: `DAVAI-env/bin/davai-init`
 3. Re-login or source `~/.davairc/profile` to finalize.
 
 Documentation
@@ -78,7 +82,7 @@ For a quick start:
 2. Go to the prompted directory of the experiment (ending with `.../dv-<nnnn>-<platform>@<user>/davai/nrv/`)
 3. Run the tests: `davai-run_xp` and monitor (standard output for the build, then job scheduler).
 
-Explanations to be found in the User Guide.
+More details to be found in the User Guide.
 
 Tests versions and reference experiments
 ----------------------------------------

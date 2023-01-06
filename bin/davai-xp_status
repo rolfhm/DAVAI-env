@@ -6,11 +6,8 @@ Check the status of tests in a Davai experiment.
 from __future__ import print_function, absolute_import, unicode_literals, division
 
 import os
-import configparser
 import argparse
 import sys
-import re
-import json
 
 # Automatically set the python path for davai_cmd
 repo_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))

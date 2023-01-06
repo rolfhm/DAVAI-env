@@ -17,14 +17,8 @@ import configparser
 import yaml
 import time
 
-from . import config, davai_xpid_syntax, set_default_mtooldir, guess_host, next_xp_num, expandpath
-
-
-def vconf2usecase(vconf):
-    return vconf.upper()
-
-def usecase2vconf(usecase):
-    return usecase.lower()
+from . import config, guess_host, DAVAI_XPID_SYNTAX
+from .util import expandpath, next_xp_num, set_default_mtooldir, vconf2usecase, usecase2vconf
 
 
 class XPmaker(object):
@@ -33,7 +27,7 @@ class XPmaker(object):
 
     @staticmethod
     def _new_XPID(host):
-        return davai_xpid_syntax.format(xpid_num=next_xp_num(),
+        return DAVAI_XPID_SYNTAX.format(xpid_num=next_xp_num(),
                                         host=host,
                                         user=getpass.getuser())
 

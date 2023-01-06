@@ -10,28 +10,23 @@ import re
 import configparser
 import socket
 import io
-import copy
 import subprocess
-import datetime
 
-package_rootdir = os.path.dirname(os.path.dirname(os.path.realpath(__path__[0])))  # realpath to resolve symlinks
-__version__ = io.open(os.path.join(package_rootdir, 'VERSION'), 'r').read().strip()
+_package_rootdir = os.path.dirname(os.path.dirname(os.path.realpath(__path__[0])))  # realpath to resolve symlinks
+__version__ = io.open(os.path.join(_package_rootdir, 'VERSION'), 'r').read().strip()
+__this_repo__ = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 # fixed parameters
-davai_rc = os.path.join(os.environ['HOME'], '.davairc')
-davai_profile = os.path.join(davai_rc, 'profile')
-davai_xp_counter = os.path.join(os.environ['HOME'], '.davairc', '.last_xp')
-davai_xpid_syntax = 'dv-{xpid_num:04}-{host}@{user}'
-davai_xpid_re = re.compile('^' + davai_xpid_syntax.replace('{xpid_num:04}', '\d+').
+DAVAI_RC_DIR = os.path.join(os.environ['HOME'], '.davairc')
+DAVAI_PROFILE = os.path.join(DAVAI_RC_DIR, 'profile')
+DAVAI_XP_COUNTER = os.path.join(DAVAI_RC_DIR, '.last_xp')
+DAVAI_XPID_SYNTAX = 'dv-{xpid_num:04}-{host}@{user}'
+DAVAI_XPID_RE = re.compile('^' + DAVAI_XPID_SYNTAX.replace('{xpid_num:04}', '\d+').
                                                    replace('-{host}', '(-\w+)?').
                                                    replace('{user}', '\w+') + '$')
-
-# repo
-this_repo = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
-
-
-def expandpath(path):
-    return os.path.expanduser(os.path.expandvars(path))
+CONFIG_BASE_FILE = os.path.join(__this_repo__, 'conf', 'base.ini')
+CONFIG_USER_FILE = os.path.join(DAVAI_RC_DIR, 'user_config.ini')
+CONFIG_TEMPLATE_USER_FILE = os.path.join(__this_repo__, 'templates', 'user_config.ini')
 
 
 def guess_host():
@@ -51,47 +46,35 @@ def guess_host():
         raise ValueError(("Couldn't find 'host' in [hosts] section of config files ('{}', '{}'), " +
                           "nor guess from hostname ({}) and keys '*host*_re_pattern' " +
                           "in section 'hosts' of same config files.").format(
-            user_config_file, base_config_file, socket_hostname))
+            CONFIG_USER_FILE, CONFIG_BASE_FILE, socket_hostname))
     return host
 
-# config
-base_config_file = os.path.join(this_repo, 'conf', 'base.ini')
-user_config_file = os.path.join(davai_rc, 'user_config.ini')
+
+# CONFIG
 config = configparser.ConfigParser()
-config.read(base_config_file)
+config.read(CONFIG_BASE_FILE)
 # read user config a first time to help guessing host
-if os.path.exists(user_config_file):
-    config.read(user_config_file)
+if os.path.exists(CONFIG_USER_FILE):
+    config.read(CONFIG_USER_FILE)
 # then complete config with host config file
-host_config_file = os.path.join(this_repo, 'conf', '{}.ini'.format(guess_host()))
-if os.path.exists(host_config_file):
-    config.read(host_config_file)
+CONFIG_HOST_FILE = os.path.join(__this_repo__, 'conf', '{}.ini'.format(guess_host()))
+if os.path.exists(CONFIG_HOST_FILE):
+    config.read(CONFIG_HOST_FILE)
 # and read again user config so that it overwrites host config
-if os.path.exists(user_config_file):
-    config.read(user_config_file)
-#DAVAI_TESTS_REPO = expandpath(config.get('paths', 'davai_tests_repo'))
+if os.path.exists(CONFIG_USER_FILE):
+    config.read(CONFIG_USER_FILE)
 
-
-def next_xp_num():
-    """Get number of next Experiment."""
-    if not os.path.exists(davai_xp_counter):
-        num = 0
-    else:
-        with open(davai_xp_counter, 'r') as f:
-            num = int(f.readline())
-    next_num = num + 1
-    with open(davai_xp_counter, 'w') as f:
-        f.write(str(next_num))
-    return next_num
-
+# Initialization and update functions -----------------------------------------
 
 def init(token=None):
     """
     Initialize Davai env for user.
     """
-    # Setup home
+    from .util import expandpath, export_token_in_profile  # import inside function because of circular dependency
+    from .util import preset_user_config_file
+    # Setup directories
     print("Setup DAVAI home directory ({}) ...".format(config.get('paths', 'davai_home')))
-    for d in ('davai_home', 'experiments', 'logs', 'mtooldir'):
+    for d in ('davai_home', 'experiments', 'logs', 'default_mtooldir'):
         p = expandpath(config.get('paths', d))
         if os.path.exists(p):
             if not os.path.isdir(p):
@@ -100,18 +83,13 @@ def init(token=None):
             if '$' in p:
                 raise ValueError("config[paths][{}] is not expandable : '{}'".format(d, p))
             os.makedirs(p)
-    ## tests repo
-    #if not os.path.exists(DAVAI_TESTS_REPO):
-    #    print("Clone DAVAI-tests repository into '{}'...".format(DAVAI_TESTS_REPO))
-    #    subprocess.check_call(['git', 'clone', config.get('defaults', 'davai_tests_origin')],
-    #                          cwd=os.path.dirname(DAVAI_TESTS_REPO))
-    # set rc
-    print("Setup {} ...".format(davai_rc))
-    if not os.path.exists(davai_rc):
-        os.makedirs(davai_rc)
-    # link bin (to have command line tools in PATH)
-    link = os.path.join(davai_rc, 'bin')
-    this_repo_bin = os.path.join(this_repo, 'bin')
+    # Set rc
+    print("Setup {} ...".format(DAVAI_RC_DIR))
+    if not os.path.exists(DAVAI_RC_DIR):
+        os.makedirs(DAVAI_RC_DIR)
+    # Link bin (to have command line tools in PATH)
+    link = os.path.join(DAVAI_RC_DIR, 'bin')
+    this_repo_bin = os.path.join(__this_repo__, 'bin')
     if os.path.islink(link) or os.path.exists(link):
         if os.path.islink(link) and os.readlink(link) == this_repo_bin:
             link = False
@@ -125,52 +103,35 @@ def init(token=None):
     if link:
         os.symlink(this_repo_bin, link)
         export_path = "export PATH=$PATH:{}\n".format(link)
-        with io.open(davai_profile, 'a') as p:
+        with io.open(DAVAI_PROFILE, 'a') as p:
             p.write(export_path)
-    # token
+    # User config
+    preset_user_config_file()
+    # Token
     if token:
         export_token_in_profile(token)
-    # profile
+    # Profile
     bash_profile = os.path.join(os.environ['HOME'], '.bash_profile')
     with io.open(bash_profile, 'r') as b:
-        sourced = any([davai_profile in l for l in b.readlines()])
+        sourced = any([DAVAI_PROFILE in l for l in b.readlines()])
     if not sourced:
         source = ['# DAVAI profile\n',
-                  'if [ -f {} ]; then\n'.format(davai_profile),
-                  '. {}\n'.format(davai_profile),
+                  'if [ -f {} ]; then\n'.format(DAVAI_PROFILE),
+                  '. {}\n'.format(DAVAI_PROFILE),
                   'fi\n',
                   '\n']
         with io.open(bash_profile, 'a') as b:
             b.writelines(source)
     print("------------------------------")
-    print("DAVAI initialization completed. Re-login or source {} to finalize.".format(davai_profile))
+    print("DAVAI initialization completed. Re-login or source {} to finalize.".format(DAVAI_PROFILE))
 
 
 def update(pull=False, token=None):
     """Update DAVAI-env and DAVAI-tests repositories using `git fetch`."""
-    #print("Update repo {} ...".format(DAVAI_TESTS_REPO))
-    #subprocess.check_call(['git', 'fetch', 'origin'], cwd=DAVAI_TESTS_REPO)
-    print("Update repo {} ...".format(this_repo))
-    subprocess.check_call(['git', 'fetch', 'origin'], cwd=this_repo)
+    from .util import expandpath, export_token_in_profile  # import inside function because of circular dependency
+    print("Update repo {} ...".format(__this_repo__))
+    subprocess.check_call(['git', 'fetch', 'origin'], cwd=__this_repo__)
     if pull:
-        subprocess.check_call(['git', 'pull', 'origin'], cwd=this_repo)
+        subprocess.check_call(['git', 'pull', 'origin'], cwd=__this_repo__)
     if token:
         export_token_in_profile(token)
-
-
-def default_mtooldir():
-    MTOOLDIR = expandpath(config['paths'].get('mtooldir'))
-    return MTOOLDIR
-
-
-def set_default_mtooldir():
-    if not os.environ.get('MTOOLDIR', None):
-        MTOOLDIR = default_mtooldir()
-        if MTOOLDIR:
-            os.environ['MTOOLDIR'] = MTOOLDIR
-
-
-def export_token_in_profile(token):
-    with io.open(davai_profile, 'a') as p:
-        p.write("export CIBOULAI_TOKEN={}  # update: {}\n".format(token, str(datetime.date.today())))
-
