@@ -52,7 +52,7 @@ For now, the only build system embedded is \texttt{gmkpack}, but we expect other
 
 The dimensioning of tests (grid sizes, number of observations, parallelization...) is done in order to conceal representativity and execution speed. Therefore, in the general usecases, the tests are supposed to run on HPC. A dedicated usecase will target smaller configurations to run on workstation (not available yet).\\
 
-An accessible source code forge is set within the ACCORD consortium to host the central repository on which updates and releases are published, and where integration requests will be posted, reviewed and monitored. This is expected to become official and be advertised more by the end of 2022.
+An accessible source code forge is set within the ACCORD consortium to host the central repository on which updates and releases are published, and where integration requests will be posted, reviewed and monitored.
 \begin{center}
  \rule{8cm}{1pt}
 \end{center}
@@ -82,21 +82,20 @@ To use DAVAÏ to test your contribution to the next development release, you nee
  \item Create your experiment, specifying which version of the tests you want to use:\\
  \texttt{davai-new\_xp \textit{<my\_branch>} -v \textit{<tests\_version>}}\\
  (e.g. \texttt{davai-new\_xp mary\_CY48T1\_cleaning -v DV48T1})\\
- $\hookrightarrow$ An experiment with a unique experiment ID is created and prompted as output of the command, together with its path.\\
- \\
- \underline{Note:} to know what is the version to be used for a given development:
+ $\hookrightarrow$ An experiment with a unique experiment ID is created and prompted as output of the command, together with its path. 
  \begin{itemize}
-  \item for now, please refer to \texttt{DAVAI-env/README.md}\\
-        (visible here: \href{https://github.com/ACCORD-NWP/DAVAI-env}{https://github.com/ACCORD-NWP/DAVAI-env}
-  \item see \texttt{davai-new\_xp -h} for more options on this command, e.g. to specify a reference experiment that is not the default one for the version of the tests.
+  \item to know what is the version to be used for a given development:\\
+  \href{https://github.com/ACCORD-NWP/DAVAI-tests/wiki}{https://github.com/ACCORD-NWP/DAVAI-tests/wiki}
+  \item see \texttt{davai-new\_xp -h} for more options on this command
   \item see Appendix~\ref{sect:tests_versioning} for a more comprehensive approach to tests versioning.
+ 
+  \item if the version you are requesting is not known, you may need to specify the DAVAI-tests origin repository from which to clone/fetch it, using argument \texttt{--origin <URL of the remote DAVAI-tests.git>}
  \end{itemize}
- \underline{Note2:} If the version you are requesting is not known, you may need to update the tests repository before, using command: \texttt{davai-update}
  \item $\hookrightarrow$ Go to the (prompted) experiment directory.\\
  \\
  Now you may want to set some options differently from the default, for this experiment. To do so, open file \texttt{conf/davai\_nrv.ini} and tune the parameters in the \texttt{[DEFAULT]} section. The usual tunable parameters are detailed in Section~\ref{sect:options}.
  \item Launch the build and tests:\\
- \texttt{./RUN\_XP.sh}\\
+ \texttt{davai-run\_xp}\\
  The script will first run the build of the branch and wait for the executables (that step may take a while, especially with several compilation flavours), and then launch the tests (through scheduler on HPC).
 \end{enumerate}
 
@@ -104,19 +103,18 @@ To use DAVAÏ to test your contribution to the next development release, you nee
 \subsubsection{Monitor and inspect results}
 \begin{enumerate}[resume,label=(\alph*)]
  \item Monitor the execution of the jobs with the scheduler (e.g. with SLURM: \texttt{squeue -u \textit{<user>}})
- \item Check the tests results summary; at time of writing, the \textit{Ciboulaï} dashboard is not accessible from outside MF yet, hence an alternate command-line is available:
+ \item Check the tests results summary on the \textit{Ciboulaï} dashboard, which URL is prompted at the end of tests launch, or visible in the config file:
  \begin{itemize}
-  \item Open \textit{Ciboulaï} dashboard in a web browser: (\href{http://intra.cnrm.meteo.fr/gws/davai}{http://intra.cnrm.meteo.fr/gws/davai})
+  \item open \textit{Ciboulaï} dashboard in a web browser: (\href{https://www.umr-cnrm.fr/davai/}{https://www.umr-cnrm.fr/davai/})
   \begin{itemize}
    \item[$\Rightarrow$] To guide you in the navigation in \textit{Ciboulaï}, cf. Section~\ref{sect:ciboulai_navigation}.
    \item[$\Rightarrow$] To get the paths to a job output or abort directory: button \texttt{[+]} then \textit{\textbf{Context}}.
   \end{itemize}
-  \item[or]
-  \item In the XP directory, run:\\
+  \item if the dashboard is not accessible, a command-line version of the status is possible; in the XP directory, run:\\
   \texttt{davai-xp\_status}\\
   to see the status summary of each job.
   The detailed status and expertise of tests are also available as json files on the Vortex cache:\\
- \texttt{belenos:/scratch/mtool/<user>/cache/vortex/davai/nrv/<xpid>/summaries\_stack/}\\
+ \texttt{belenos:/scratch/mtool/<user>/cache/vortex/davai/<vconf>/<xpid>/summaries\_stack/}\\
  or\\
  \texttt{davai-xp\_status -t <task>}\\
  $\Rightarrow$ To get the paths to a job output or abort directory: \texttt{davai-xp\_status -t <task>} then open the \texttt{itself} file and look in the \textit{\textbf{Context}} section.
@@ -131,16 +129,21 @@ To use DAVAÏ to test your contribution to the next development release, you nee
 
 \subsubsection{First tips}
 \begin{itemize}
- \item If the \textbf{pack preparation or compilation fails}, for whatever reason, the \texttt{1.build.sh} prints an error message and the \texttt{RUN\_XP.sh} stops before running the tests. You can find the output of the pack preparation or compilation in \texttt{logs/} directory, as any other test log.
+ \item If the \textbf{pack preparation or compilation fails}, for whatever reason, the build step prints an error message and the \texttt{davai-run\_xp} stops before running the tests. You can find the output of the pack preparation or compilation in \texttt{logs/} directory, as any other test log.\\
+ A very common error is when the pack already exists; if you actually want to overwrite the contents of the pack (e.g. because it is an update of the same experiment), re-run \texttt{davai-run\_xp} or \texttt{davai-build} with option \texttt{-e/--preexisting\_pack}. Otherwise, you'd need to move/delete the existing pack.
  \item The tests are organised as \textit{\textbf{tasks}} and \textit{\textbf{jobs}}:
   \begin{itemize}
    \item a \textit{\textbf{task}} consists in fetching input resources, running an executable, analyzing its outputs to the Ciboulai dashboard and dispatching (archiving) them: \textit{1 test = 1 task}
    \item a \textit{\textbf{job}} consists in a sequential driver of one or several \textit{task(s)}: either a flow sequence (i.e. outputs of task N is an input of task N+1) or family sequence (e.g. run independantly an IFS and an Arpege forecast)
   \end{itemize}
- \item To \textbf{fix a piece of code}, the best is to modify the code in your Git repo, then re-run \texttt{RUN\_XP.sh} (or \texttt{1.build.sh} then \texttt{2.tests.sh}). You don't necessarily need to commit the change rightaway, the non-committed changes are exported from Git to the pack. Don't forget to commit eventually though.
- \item To \textbf{re-run a job after re-compilation}, open \texttt{2.tests.sh}, find the \texttt{mkjob.py} command-line of the job, and run that command-line in interactive.
- \item The \texttt{mkjob.py} argument \texttt{task=category.job} indicates that the job to be run is the \textit{\textbf{Driver}} in \texttt{./tasks/category/job.py}
- \item To \textbf{re-run a single test} within a job, e.g. the IFS forecast in \texttt{forecasts/standalone\_forecasts.py}: edit this file, comment the other families or tasks (\textit{nodes}) therein, and re-run the job as indicated above.
+ \item To \textbf{fix a piece of code}, the best is to modify the code in your Git repo, then re-run \texttt{davai-run\_xp} (or \texttt{davai-build} then \texttt{davai-run\_tests}). You don't necessarily need to commit the change rightaway, the non-committed changes are exported from Git to the pack. Don't forget to commit eventually though.
+ \item To \textbf{re-run one job only after re-compilation}, type\\ \texttt{davai-run\_tests -l}\\
+ to list the jobs and then\\
+ \texttt{davai-run\_tests <category.job>}\\
+ e.g.\\
+ \texttt{davai-run\_tests forecasts.standalone\_forecasts}
+ \item The syntax \texttt{category.job} indicates that the job to be run is the \textit{\textbf{Driver}} in \texttt{./tasks/category/job.py}
+ \item To \textbf{re-run a single test} within a job, e.g. the IFS forecast in \texttt{forecasts/standalone\_forecasts.py}: edit this file, comment the other \texttt{Family}(s) or \texttt{Task}(s) (\textit{nodes}) therein, and re-run the job as indicated above.
  \item \textbf{Eventually}, after code modifications and fixing particular tests, you should re-run \textbf{the whole set of tests}, to make sure your fix does not break any other test.
 \end{itemize}
 
@@ -162,7 +165,7 @@ To use DAVAÏ to test your contribution to the next development release, you nee
  \item When you get to an experiment page, you can find a few key features of the experiment, in the header. The \texttt{[+]} close to the XPID (experiment ID) will provide more. The others \texttt{[+]} to the left of the \textit{\texttt{uenv}}'s provide inner details from each one.\\
  The summary of tests results is also visible on the top right.
  \item Each task is summarized: its Pending/Crashed/Ended status, and in case of Ended, the comparison status. As a first glance, a main metric is shown, assumed to be the most meaningful for this test.
- \item The \texttt{`drHook rel diff'} and \texttt{`rss rel diff'} columns show the relative difference in respectively: the elapse time of the execution, and the memory consumption (RSS) compared to the reference. \textit{\textbf{However, so far the drHook figures have proven to be too volatile from an execution to another, to be meaningful. Don't pay too much attention, for now.}}
+ \item The \texttt{`drHook rel diff'} and \texttt{`rss rel diff'} columns show the relative difference in respectively: the elapse time of the execution, and the memory consumption (RSS) compared to the reference. \textit{\textbf{However, so far the drHook figures have proven to be too volatile from an execution to another, to be meaningful. Don't pay too much attention, for now. Similarly, the RSS figures remain to be investigated (relevance and availability).}}
  \item A filter is available to show only a subset of tasks.
  \item When you click on the \texttt{[+]} of the \textit{\texttt{more}} column, the detailed expertise is displayed:
  \begin{itemize}
@@ -181,18 +184,17 @@ To use DAVAÏ to test your contribution to the next development release, you nee
 \newpage
 \subsection{How it works, briefly}
 \subsubsection{Organisation of an experiment}
-The \texttt{davai-new\_xp} command-line prepares a ``testing experiment'' directory, named after an incremental number, the platform and the user.
+The \texttt{davai-new\_xp} command-line prepares a ``testing experiment'' directory, named uniquely after an incremental number, the platform and the user.
 
 \noindent This testing experiment will consist in:
 \begin{itemize}
  \item \texttt{conf/davai\_nrv.ini} : config file, containing parameters such as the git reference to test, davai options, historisations of input resources to use, tunings of tests (e.g. the input obs files to take into account) and profiles of jobs
+ \item \texttt{conf/<USECASE>.yaml} : contains an ordered and categorised list of jobs to be ran in the requested usecase.
+ \item \texttt{conf/sources.yaml} : information about the sources to be tested, in terms of Git or bundle
  \item \texttt{tasks/} : templates of single tasks and jobs
- \item \texttt{RUN\_XP.sh} : wraps \texttt{0.setup\_ciboulai.sh $\rightarrow$ 1.build.sh $\rightarrow$ 2.tests.sh}
- \item \texttt{0.setup\_ciboulai.sh} : (re-)initialize the experiment in ciboulai dashboard
- \item \texttt{1.build.sh} : get source code (branch), make one or several gmkpack pack(s) with it -- depending on the number of \textit{compilation flavours} requested in config, e.g. double and single precision -- then compile and link executables (and wait for them)
- \item \texttt{2.tests.sh} : build the tests and run them through the jobs scheduler
  \item links to the python packages that are used by the scripts (\texttt{vortex}, \texttt{epygram}, \texttt{ial\_build}, \texttt{ial\_expertise})
  \item a \texttt{logs} directory/link will appear after the first execution, containing log files of each job.
+ \item \texttt{DAVAI-tests} : a clone of the DAVAI-tests repository, checkedout on the requested version of the tests, on which point the \texttt{tasks/} and \texttt{conf/}
 \end{itemize}
 
 
@@ -253,35 +255,35 @@ The tasks in the \texttt{build} job are respectively in charge of:
 \noindent In case the compilation fails, or if you need to (re-)modify the sources for any reason (e.g. fix an issue):
 \begin{enumerate}[label=\arabic*.]
   \item implement corrections in the branch (commited or not)
-  \item in \texttt{conf/davai\_*.ini}, section \texttt{[gitref2pack]}, switch key \texttt{preexisting\_pack = True}, so that the pack does not need to be re-created, but only re-populated (the key being \texttt{False} is a protection against unhappy overwrites of existing packs)
-  \item re-run \texttt{./1.build.sh} and then if build successful \texttt{./2.tests.sh}
+  \item re-run the build:\\
+  \texttt{davai-build -e}\\
+  (option \texttt{-e} or \texttt{--preexisting\_pack} assumes the pack already preexists; this is a protection against accidental overwrite of an existing pack. The option can also be passed to \texttt{davai-run\_xp})
+  \item and then if build successful \texttt{davai-run\_tests}
  \end{enumerate}
 
-\subsubsection{Build with ...}
+\subsubsection{Build with [cmake/makeup/ecbuild...]}
 Not implemented yet.
 
 \subsection{Re-run a test}
 
-Jobs launching is gathered in a shell wrapper named \texttt{2.tests.sh}.
-In this wrapper, the user can find the command-lines that run the jobs, and that can be ran independantly.
-
-Some tests are gathered together within a single job. There are 2 reasons for that: if they are an instance of a loop (e.g. same test on different obstypes, or different geometries), or if they have a flow-dependancy with an upstream/downstream test (e.g. bator, screening and minimization).
-
-When a test fails and the user wants to re-run it, it is possible to do so without re-running all the jobs nor all the tests within a job.
-
+The Davai command \texttt{davai-run\_tests} launches all the jobs listed in \texttt{conf/<USECASE>.yaml}, sequentially and independantly (i.e. without waiting for the jobs to finish). The command can also be used complementary:
 \begin{itemize}
- \item To re-run a single job:\\
-       $\rightarrow$ open the \texttt{2.tests.sh} wrapper, identify the job of interest, and copy-paste-run its command-line
- \item It is also possible to de-activate only the jobs that are successful to re-run all the others:\\
-       $\rightarrow$ open the wrapper and comment (\texttt{\#}) the unnecessary jobs, then re-run \texttt{./2.tests.sh}
- \item To re-run a single test from a multi-tests job without re-runnning its job-mates, it is also possible to deactivate the other tests of the job\footnote{including upstream tasks that produce flow-resources for the targeted test, as long as the resources stay in cache}:
-       \begin{itemize}[label=$\rightarrow$]
-        \item \textbf{loops:} open config file \texttt{conf/davai\_*.ini}, and in the section corresponding to the job or family, the loops can be found as \texttt{list(...)}, e.g. \texttt{obstypes}, \texttt{rundates} or \texttt{geometrys}. Items in the list can be reduced to the only required ones (keeping a final \texttt{","} if only one item remains).
-        \item \textbf{dependancy:} open driver file corresponding to the job name in \texttt{tasks/} directory, and comment out (\texttt{\#}) the unrequired tasks in families of \textit{\texttt{nodes}}, leaving only the required task.
-       \end{itemize}
+ \item to list the jobs that would be launched by the command, according to the \texttt{conf/<USECASE>.yaml} config file:\\
+ \texttt{davai-run\_tests -l}
+ \item to run a single job:\\
+ \texttt{davai-run\_tests <job identifier as given by -l option>}
 \end{itemize}
 
-\textit{Note for the future: this might be improved to be more user-friendly...}
+
+Some tests are gathered together within a single job. There are 2 reasons for that: if they are an instance of a loop (e.g. same test on different obstypes, or different geometries), or if they have a flow-dependancy with an upstream/downstream test (e.g. bator $>$ screening $>$ minimization).
+
+When a test fails within a job and the user wants to re-run it without re-runnning the other tests from the same job, it is possible to do so by deactivating them\footnote{including upstream tasks that produce flow-resources for the targeted test, as long as the resources stay in cache} :
+\begin{itemize}[label=$\rightarrow$]
+        \item \textbf{loops:} to deactivate members of a loop:\\
+        open config file \texttt{conf/davai\_*.ini}, and in the section corresponding to the job or family, the loops can be found as \texttt{list(...)}, e.g. \texttt{obstypes}, \texttt{rundates} or \texttt{geometrys}. Items in the list can be reduced to the only required ones (note that if only one item remains, one needs to keep a final \texttt{","} within the parenthesis).
+        \item \textbf{dependancy:} open driver file corresponding to the job name in \texttt{tasks/} directory, and comment out (\texttt{\#}) the unrequired tasks or families of \textit{\texttt{nodes}}, leaving only the required task.
+\end{itemize}
+
 
 
 
@@ -291,7 +293,7 @@ The \textit{\textbf{usecase}} parameter of an experiment (to be set in the \text
   \begin{itemize}
    \item \texttt{NRV} (default): Non-Regression Validation, minimal set of tests that any contribution must pass.
    \item \texttt{ELP}: Exploration and Localization of Problems, extended set of isolated components, to help localizing an issue
-   \item \textit{\texttt{PC}: set of toy tests ported on workstation; the compilation with GNU (usually less permissive than vendors) enables to raise issues that might not have been seen with NRV/ELP tests.}
+   \item \textit{\texttt{PC}: [not implemented yet] set of toy tests ported on workstation; the compilation with GNU (usually less permissive than vendor compilers) enables to raise issues that might not have been seen with NRV/ELP tests.}
   \end{itemize}
 
 \subsubsection*{Smaller tests for smaller problems}
@@ -300,25 +302,19 @@ To investigate a non-reproducibility or crash issue, the \texttt{ELP} usecase of
 
 \noindent To switch to this mode:
 \begin{itemize}
- \item create a new experiment with the same arguments but \texttt{-u ELP}
- \item go to the new experiment, edit config file \texttt{conf/davai\_elp.ini} and reach section \texttt{[gitref2pack]}:
- \begin{itemize}
-  \item set \texttt{preexisting\_pack = True}
-  \item set \texttt{cleanpack = False} for a faster build
- \end{itemize}
- \item run \texttt{./RUN\_XP.sh}
+ \item create a new experiment with the same arguments but \texttt{-u ELP} and go in it
+ \item for a faster build (no re-compilation), edit config file \texttt{conf/davai\_elp.ini} and in section \texttt{[gitref2pack]}, set \texttt{cleanpack = False}
+ \item \texttt{davai-run\_xp}
 \end{itemize}
 
-\noindent Instead of 40$^+$ tests, the ELP mode will provide hundreds of more elementary and focused tests. For instance, if you had a problem in the 4DVar minimization, you can run the 3 observation operators tests, observation by observation, and/or a screening, and/or a 3DVar or 4DVar single-obs minimization, in order to understand if the problem is in a specific observation operator (which obs type ?), in its direct, TL or AD version, or in the Variational algorithm, or in the preceding screening, and so on...
+\noindent Instead of 50$^+$ tests, the ELP mode will provide hundreds of more elementary and focused tests. For instance, if you had a problem in the 4DVar minimization, you can run the 3 observation operators tests, observation by observation, and/or a screening, and/or a 3DVar or 4DVar single-obs minimization, in order to understand if the problem is in a specific observation operator (which obs type ?), in its direct, TL or AD version, or in the Variational algorithm, or in the preceding screening, and so on...
 
-The user may want, at some point, to run only a subset of this very large set of tests. In this case, simply open the \texttt{2.tests.sh} and comment/decomment (\texttt{\#}) the launch of the various jobs.
-To reduce the tests that are innerly looped (e.g. the loop on observation types within the \texttt{*\_\_obstype} jobs), open config file \texttt{conf/davai\_elp.ini}, look for the section named after job name and select the obstype(s) to be kept only in list.
+The user may want, at some point, to run only a subset of this very large set of tests. In this case, simply open the \texttt{conf/ELP.yaml} and comment (\texttt{\#}) the launch of the various jobs.
+To reduce the number of tests that are innerly looped, e.g. the loop on observation types within the \texttt{*\_\_obstype} jobs: open config file \texttt{conf/davai\_elp.ini}, look for the section named after job name and select the obstype(s) to be kept only in list.
 
 
 \subsection{Build options}
-The choice of a build system is done by argument at the creation of an experiment:\\
-\texttt{davai-new\_xp --compiling\_system gmkpack}\\
-command-line. However, at time of writing, only \texttt{gmkpack} is available within DAVAÏ.
+The choice of a build system is corollary to the versioning of the tests. However, at time of writing, only \texttt{gmkpack} is available within DAVAÏ.
 \subsubsection{Build with \texttt{gmkpack}}
 In the \texttt{[gmkpack]} section of config file \texttt{conf/davai\_*.ini}:
 \begin{itemize}
@@ -326,25 +322,37 @@ In the \texttt{[gmkpack]} section of config file \texttt{conf/davai\_*.ini}:
  $\hookrightarrow$ set \texttt{packtype = main}
  \item to set the list of compilation flavours to build (a.k.a. compiler label/flag)\\
  $\hookrightarrow$ use \texttt{compilation\_flavours}\\
- ! if you modify this, you potentially need to modify the \texttt{compilation\_flavour} accordingly in the ``families'' sections that define it
+ ! if you modify this, you potentially need to modify the \texttt{compilation\_flavour} accordingly in the ``families'' sections that define it, as well as the \texttt{programs\_by\_flavour} that define the executables to be built for specific flavours
 \end{itemize}
 In the \texttt{[gitref2pack]} section:
 \begin{itemize}
  \item to use a different \texttt{\$ROOTPACK} (i.e. a different source of ancestor packs, for incremental packs)\\
- $\hookrightarrow$ use \texttt{rootpack}
+ $\hookrightarrow$ use \texttt{rootpack}\\
+ (preferably to modifying the environment variable, so that will be specific to that experiment only)
+ \item to avoid cleaning all \texttt{.o} and \texttt{.a} when (re-)populating the pack:\\
+ $\hookrightarrow$ set \texttt{cleanpack = False}\\
 \end{itemize}
 In the \texttt{[pack2bin]} section:
 \begin{itemize}
  \item to make the \texttt{\textit{pack2bin}} task crash more quickly after a compilation/link error, or do not crash at all\\
- $\hookrightarrow$ use \texttt{fatal\_build\_failure} accordingly
+ $\hookrightarrow$ set \texttt{fatal\_build\_failure =}
+ \begin{itemize}[label=$*$]
+  \item \texttt{\_\_finally\_\_} $\Rightarrow$ crash after trying to compile and build all executables
+  \item \texttt{\_\_any\_\_} $\Rightarrow$ crash if compilation fails or right after the first executable linking to fail
+  \item \texttt{\_\_none\_\_} $\Rightarrow$ never == ignore failed builds
+ \end{itemize}
  \item to re-generate \texttt{ics\_*} files before building\\
  $\hookrightarrow$ set \texttt{regenerate\_ics = True}
  \item to (re-)compile local sources with \texttt{gmkpack's} option \texttt{Ofrt=2} (i.e. \texttt{-O0 -check bounds}):\\
  $\hookrightarrow$ set \texttt{Ofrt = 2}
+ \item to use more/less threads for compilating (independant) sources files in parallel:\\
+ $\hookrightarrow$ use \texttt{threads}
+ \item to change the list of executables to be built, by default or depending on the compilation flavour:\\
+ $\hookrightarrow$ use \texttt{default\_programs} and \texttt{programs\_by\_flavour}
 \end{itemize}
 \noindent Also, any \texttt{gmkpack} native variables can be set in the \texttt{.bash\_profile}, e.g. \texttt{ROOTPACK, HOMEPACK}, etc... Some might be overwritten by the config, e.g. if you set \texttt{rootpack} in config file.
 
-\subsubsection{Build with ...}
+\subsubsection{Build with [cmake/makeup/ecbuild...]}
 Not implemented yet.
 
 \subsection{Input data}
@@ -476,10 +484,10 @@ The reference experiment for the integration branch is at any moment, \textit{by
 \begin{enumerate}[label=(\arabic*)]
  \item Integration of \texttt{b1} :
  \begin{itemize}
-  \item Reference: passing \texttt{-r x0} is optional as it is the default reference xp in \texttt{dev\_DV49\_toT1} config file
+  \item Reference: \texttt{x0} is the default reference xp in \texttt{dev\_DV49\_toT1} config file
   \item Tests: \texttt{b1} did not require to adapt the tests $\rightarrow$ we can test with branch \texttt{dev\_DV49\_toT1} unchanged (and still equal to \texttt{DV49})
  \end{itemize}
- \texttt{davai-new\_xp dev\_CY49\_toT1 -v dev\_DV49\_toT1 [-r x0]}\\
+ \texttt{davai-new\_xp dev\_CY49\_toT1 -v dev\_DV49\_toT1}\\
  $~~~\hookrightarrow~~~$ \texttt{xi1 == x1 == x0}
 
  \item Integration of \texttt{b2} :
@@ -487,15 +495,19 @@ The reference experiment for the integration branch is at any moment, \textit{by
   \item Reference: \texttt{xi1} should normally be the reference xp, but since its results are bit-identical to \texttt{x0} as opposed to \texttt{x2}, it is more relevant to compare to \texttt{x2}, to check that the merge of \texttt{b1} and \texttt{b2} still give the same results as \texttt{b2}
   \item Tests: \texttt{b2} did not require to adapt the tests $\rightarrow$ tests branch \texttt{DV49\_toT1} unchanged
  \end{itemize}
- \texttt{davai-new\_xp dev\_CY49\_toT1 -v DV49\_toT1 -r \texttt{x2}}\\
+ \texttt{davai-new\_xp dev\_CY49\_toT1 -v DV49\_toT1}\\
+ $~~~$and set \texttt{ref\_xpid = x2}\\
  $~~~\hookrightarrow~~~$ \texttt{xi2 == x2}
+ \begin{itemize}
+  \item then \texttt{ref\_xpid} should be set to \texttt{xi2} in branch \texttt{DV49\_toT1}
+ \end{itemize}
 
  \item Integration of \texttt{b3} :
  \begin{itemize}
   \item Reference: \texttt{b3} does not change the results, so reference experiment is as expected by default \texttt{xi2}
   \item Tests: \texttt{b3} requires tests adaptations (\texttt{DV49\_b3}) $\rightarrow$ update \texttt{dev\_DV49\_toT1} by merging \texttt{DV49\_b3} in
  \end{itemize}
- \texttt{davai-new\_xp dev\_CY49\_toT1 -v DV49\_toT1 -r xi2}\\
+ \texttt{davai-new\_xp dev\_CY49\_toT1 -v DV49\_toT1}\\
  $~~~\hookrightarrow~~~$ \texttt{xi3 == xi2}
  
  \item Integration of \texttt{b4} : \textit{(where it becomes more or less tricky)}
@@ -507,37 +519,39 @@ The reference experiment for the integration branch is at any moment, \textit{by
    $\rightarrow$ \texttt{xi3} should be taken as reference, and the differences finely compared to those shown in \texttt{x4}
    \item if there is more differences in the results between \texttt{b4} and \texttt{CY49} than between \texttt{dev\_CY49\_toT1} and \texttt{CY49}:\\
    $\rightarrow$ \texttt{x4} should be taken as reference, and the differences finely compared to those shown in \texttt{xi3'}, where \texttt{xi3'} is a \textit{``witness''} experiment comparing the integration branch after integration of \texttt{b3} (commit \texttt{<c3>}) to \texttt{CY49} (experiment \texttt{x0}):\\
-   \texttt{davai-new\_xp <c3> -v dev\_DV49\_toT1 -r x0}\\
+   \texttt{davai-new\_xp <c3> -v dev\_DV49\_toT1}\\
+   $~~~$and set \texttt{ref\_xpid = x0}\\
    $~~~\hookrightarrow~~~$ \texttt{xi3'}
   \end{enumerate}
   This is still OK if the tests affected by \texttt{dev\_CY49\_toT1} (via \texttt{b2}) and the tests affected by \texttt{b4} are not the same subset, or if at least if the affected fields are not the same. If they are (e.g. numerical differences that propagate prognostically through the model), the conclusion becomes much more difficult !!!\\
   In this case, we do not really have explicit recommendation; the integrators should double-check the result of the merge with the author of the contribution \texttt{b4}. Any idea welcome to sort it out.
   \item Tests: \texttt{b4} requires tests adaptations (\texttt{DV49\_b4}) $\rightarrow$ update \texttt{dev\_DV49\_toT1} by merging in \texttt{DV49\_b4} in
  \end{itemize}
- \texttt{davai-new\_xp dev\_CY49\_toT1 -v dev\_DV49\_toT1 -r (xi3|x4)}\\
+ \texttt{davai-new\_xp dev\_CY49\_toT1 -v dev\_DV49\_toT1}\\
+   $~~~$and set \texttt{ref\_xpid = xi3|xi4}\\
    $~~~\hookrightarrow~~~$ \texttt{xi4}
 \end{enumerate}
 
 \subsection{Setting up a reference version of the tests and an associated reference experiment\label{sect:set_a_ref_tests_version}}
+
+[ ! WORK IN PROGRESS...]
+
 We describe here how to set up a reference version of the tests and an associated reference experiment, typically for developments based on a given IAL release to be validated against this release.
 
 For the example, let's consider \texttt{CY49} and setting up a \texttt{DV49} version for it, including its reference experiment, to validate the contributions to \texttt{CY49T1}.
 \begin{enumerate}[label=\arabic*),start=0]
  \item Choose an initial version of the tests you want to be used. It may probably not be the previous reference one (e.g. \texttt{DV48T2} or \texttt{dev\_CY48T1\_toT2}), as we may often want to modify or add tests in between cycles.
- \item Make a branch starting from this version and check it out, e.g.:\\
+ \item In your development DAVAI-tests repository, make a branch starting from this version and check it out, e.g.:\\
  \texttt{git checkout -b on\_49 [<chosen\_initial\_ref]}
  \item Set the reference experiment:\\
- \texttt{davai-new\_xp CY49 -v on\_49 -u ELP --remote local [-x "archive\_as\_ref=True,ignore\_reference=True"]}\\
+ \texttt{davai-new\_xp CY49 -v on\_49 -u ELP --origin <URL of my DAVAI-tests repo>}\\
  $\hookrightarrow$ \texttt{dv-xxxx-machine@user}\\
  Note:
  \begin{itemize}
   \item As ELP usecase encompasses NRV, reference experiments should use this usecase so it could be used as a reference for both usecases.
-  \item \texttt{--remote local} to force Davaï not to look for a  remote version of the tests, which is the default behaviour
-  \item you can set on-the-fly parameters into the experiment config file using argument \texttt{-x}; in this case:
-  \begin{itemize}
-   \item the experiment will serve as a reference, so we want to archive its results on the archiving machine
-   \item if you are confident enough with the test version, it may not be useful to compare the experiment to any reference one.
-  \end{itemize}
+  \item \texttt{--origin <URL...>} to clone that repo in which you created the branch
+  \item in config of the experiment, set \texttt{archive\_as\_ref = True} : the experiment will serve as a reference, so we want to archive its results
+  \item in config of the experiment, set \texttt{ignore\_reference = True} : if you are confident enough with the test version, it may not be useful/relevant to compare the experiment to any reference one.
  \end{itemize}
  \item Run the experiment
  \item Update the \texttt{DAVAI-tests} repository:
