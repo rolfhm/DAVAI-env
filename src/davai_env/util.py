@@ -9,24 +9,12 @@ import os
 import io
 import datetime
 
-from . import config, DAVAI_XP_COUNTER, CONFIG_USER_FILE, CONFIG_TEMPLATE_USER_FILE
+from . import config
 
 
 def expandpath(path):
     """Expand user and env var in a path)."""
     return os.path.expanduser(os.path.expandvars(path))
-
-def next_xp_num():
-    """Get number of next Experiment."""
-    if not os.path.exists(DAVAI_XP_COUNTER):
-        num = 0
-    else:
-        with io.open(DAVAI_XP_COUNTER, 'r') as f:
-            num = int(f.readline())
-    next_num = num + 1
-    with io.open(DAVAI_XP_COUNTER, 'w') as f:
-        f.write(str(next_num))
-    return next_num
 
 def default_mtooldir():
     """Return default MTOOLDIR from config."""
@@ -54,14 +42,3 @@ def usecase2vconf(usecase):
     """Convert usecase to vconf."""
     return usecase.lower()
 
-def preset_user_config_file(prompt=None):
-    """Copy a (empty/commented) template of user config file."""
-    if not os.path.exists(CONFIG_USER_FILE):
-        with io.open(CONFIG_TEMPLATE_USER_FILE, 'r') as i:
-            t = i.readlines()
-        with io.open(CONFIG_USER_FILE, 'w') as o:
-            for l in t:
-                o.write('#' + l)
-        prompt = True
-    if prompt:
-        print("See user config file to be tuned in : '{}'".format(CONFIG_USER_FILE))

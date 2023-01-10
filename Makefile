@@ -5,15 +5,9 @@ CLEANDIRS       = $(SUBDIRS:%=clean-%)
 
 all: clean
 
-.PHONY: all clean init doc $(CLEANDIRS)
+.PHONY: all clean doc $(CLEANDIRS)
 
 # TARGETS
-init:
-	python3 bin/davai-init
-
-update:
-	python3 bin/davai-update
-
 doc:
 	$(MAKE) -C $(DOC_DIR) doc
 

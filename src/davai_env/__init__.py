@@ -5,6 +5,7 @@ Davai environment around experiments and shelves.
 """
 from __future__ import print_function, absolute_import, unicode_literals, division
 
+import sys
 import os
 import re
 import configparser
@@ -18,7 +19,6 @@ __this_repo__ = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath
 
 # fixed parameters
 DAVAI_RC_DIR = os.path.join(os.environ['HOME'], '.davairc')
-#DAVAI_PROFILE = os.path.join(DAVAI_RC_DIR, 'profile')
 DAVAI_XP_COUNTER = os.path.join(DAVAI_RC_DIR, '.last_xp')
 DAVAI_XPID_SYNTAX = 'dv-{xpid_num:04}-{host}@{user}'
 DAVAI_XPID_RE = re.compile('^' + DAVAI_XPID_SYNTAX.replace('{xpid_num:04}', '\d+').
@@ -64,16 +64,38 @@ if os.path.exists(CONFIG_HOST_FILE):
 if os.path.exists(CONFIG_USER_FILE):
     config.read(CONFIG_USER_FILE)
 
+def show_config():
+    """Show current config."""
+    print("Configuration, from:")
+    for c in (CONFIG_BASE_FILE, CONFIG_HOST_FILE, CONFIG_USER_FILE):
+        print(" - {}".format(c))
+    print("-" * 80)
+    config.write(sys.stdout)
 
-def initialize():
+def preset_user_config_file(prompt=None):
+    """Copy a (empty/commented) template of user config file."""
+    if not os.path.exists(CONFIG_USER_FILE):
+        if not os.path.exists(os.path.basename(CONFIG_USER_FILE)):
+            os.makedirs(os.path.basename(CONFIG_USER_FILE))
+        with io.open(CONFIG_TEMPLATE_USER_FILE, 'r') as i:
+            t = i.readlines()
+        with io.open(CONFIG_USER_FILE, 'w') as o:
+            for l in t:
+                o.write('#' + l)
+        prompt = True
+    if prompt:
+        print("See user config file to be tuned in : '{}'".format(CONFIG_USER_FILE))
+
+
+# INITIALIZATION
+def initialized():
     """
-    Initialize Davai env for user.
+    Make sure Davai env is initialized for user.
     """
     # import inside function because of circular dependency
     from .util import expandpath
-    from .util import preset_user_config_file
     # Setup directories
-    for d in ('davai_home', 'experiments', 'logs', 'default_mtooldir'):
+    for d in ('experiments', 'logs', 'default_mtooldir'):
         p = expandpath(config.get('paths', d))
         if os.path.exists(p):
             if not os.path.isdir(p):
@@ -86,6 +108,3 @@ def initialize():
         os.makedirs(DAVAI_RC_DIR)
     # User config
     preset_user_config_file()
-
-# Make sure env is initialized at package import
-initialize()

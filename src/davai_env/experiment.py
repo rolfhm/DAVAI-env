@@ -17,8 +17,11 @@ import configparser
 import yaml
 import time
 
-from . import config, guess_host, DAVAI_XPID_SYNTAX
-from .util import expandpath, next_xp_num, set_default_mtooldir, vconf2usecase, usecase2vconf
+from . import config, guess_host, initialized
+from . import DAVAI_XPID_SYNTAX, DAVAI_XP_COUNTER
+from .util import expandpath, set_default_mtooldir, vconf2usecase, usecase2vconf
+
+initialized()
 
 
 class XPmaker(object):
@@ -26,8 +29,21 @@ class XPmaker(object):
     experiments_rootdir = expandpath(config['paths']['experiments'])
 
     @staticmethod
-    def _new_XPID(host):
-        return DAVAI_XPID_SYNTAX.format(xpid_num=next_xp_num(),
+    def next_xp_num():
+        """Get number of next Experiment."""
+        if not os.path.exists(DAVAI_XP_COUNTER):
+            num = 0
+        else:
+            with io.open(DAVAI_XP_COUNTER, 'r') as f:
+                num = int(f.readline())
+        next_num = num + 1
+        with io.open(DAVAI_XP_COUNTER, 'w') as f:
+            f.write(str(next_num))
+        return next_num
+
+    @classmethod
+    def _new_XPID(cls, host):
+        return DAVAI_XPID_SYNTAX.format(xpid_num=cls.next_xp_num(),
                                         host=host,
                                         user=getpass.getuser())
 

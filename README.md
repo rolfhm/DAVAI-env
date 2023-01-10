@@ -43,17 +43,22 @@ Local pre-requirements:
 * for [`belenos`@MF](doc/belenos.md)
 
 To setup on a pre-installed machine (e.g. `belenos`@MF):
-1. belenos: `~mary/public/DAVAI-env/master/bin/davai-init`
-   atos@bologna: `~rm9/public/DAVAI-env/master/bin/davai-init`
-2. Re-login or source `~/.davairc/profile` to finalize.
+* belenos: `module use ~mary/public/modulefiles`
+           `module load davai`
+* atos@bologna: `module use ~rm9/public/modulefiles`
+                `module load davai`
 
 To setup your own install:
 1. Clone this repository, e.g. in `~/repositories/`:\
    `git clone https://github.com/ACCORD-NWP/DAVAI-env.git`
 2. Initialize your DAVAI environment:
-   - if you want to inspect possible customizations: `DAVAI-env/bin/davai-init -s`
-   - initialize: `DAVAI-env/bin/davai-init`
-3. Re-login or source `~/.davairc/profile` to finalize.
+   - if you want to inspect possible customizations:
+     - `DAVAI-env/bin/davai-config show`
+     - `DAVAI-env/bin/davai-config preset_user`
+   - export env vars:
+     - `DAVAI_ENV=~/repositories/DAVAI-env`
+     - `export PATH=$PATH:$DAVAI_ENV/bin`
+     - `export PYTHONPATH=$PYTHONPATH:$DAVAI_ENV/src`
 
 Documentation
 -------------

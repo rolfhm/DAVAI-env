@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+# -*- coding:Utf-8 -*-
+"""
+Show current DAVAI-env configuration, or provide a commented user config template, if not existing.
+"""
+from __future__ import print_function, absolute_import, unicode_literals, division
+
+import os
+import sys
+import argparse
+
+# Automatically set the python path for davai_cmd
+repo_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+sys.path.insert(0, os.path.join(repo_path, 'src'))
+import davai_env
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Show current DAVAI-env configuration, " +
+                                                 "or provide a commented user config template, if not existing.")
+    parser.add_argument('action',
+                        choices=['show', 'preset_user'])
+    args = parser.parse_args()
+
+    if args.action == "show":
+        davai_env.show_config()
+    else:
+        davai_env.preset_user_config_file(prompt=True)

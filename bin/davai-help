@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 echo "Available *davai* commands:"
-echo "    davai-init                     => initialize Davai API"
+echo "    davai-config                   => show DAVAI-env current config or preset user config"
 echo "    davai-new_xp                   => prepare a testing experiment"
 echo "    davai-run_xp                   => run the whole experiment: ciboulai init, build, tests"
 echo "    davai-xp_status                => check status of tests, in case of non-availablility of ciboulai dashboard"
