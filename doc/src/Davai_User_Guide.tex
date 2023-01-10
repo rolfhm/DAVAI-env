@@ -27,7 +27,7 @@
 
 \title{DAVAÏ User Guide}
 \author{A. Mary}
-\date{\today}
+\date{DAVAI-env \textit{v-\input{../../VERSION}}\\\today}
 
 \pdfinfo{%
   /Title    (Ugr)
@@ -48,16 +48,16 @@
 
 DAVAÏ embeds the whole workflow from the source code to the green/red light validation status: fetching sources from Git, building executables, running test cases, analysing the results and displaying them on a dashboard.
 
-For now, the only build system embedded is \texttt{gmkpack}, but we expect other systems to be plugged when required. The second limitation of this version is that the starting point is still an IAL Git reference only. The next version of the DAVAÏ system will include multi-projects/repositories fetching, using the \textit{\texttt{bundle}} concept as starting point.
+For now, the only build system embedded is \texttt{gmkpack}, but we expect other systems to be plugged when required. The second limitation of this version is that the starting point is still an IAL\footnote{IAL = \textbf{I}FS-\textbf{A}rpege-\textbf{L}AM} Git reference only. The next version of the DAVAÏ system will include multi-projects/repositories fetching, using the \textit{\texttt{bundle}} concept as starting point.
 
 The dimensioning of tests (grid sizes, number of observations, parallelization...) is done in order to conceal representativity and execution speed. Therefore, in the general usecases, the tests are supposed to run on HPC. A dedicated usecase will target smaller configurations to run on workstation (not available yet).\\
 
-An accessible source code forge is set within the ACCORD consortium to host the central repository on which updates and releases are published, and where integration requests will be posted, reviewed and monitored.
+An accessible source code forge is set within the ACCORD consortium to host the IAL central repository on which updates and releases are published, and where integration requests will be posted, reviewed and monitored.
 \begin{center}
  \rule{8cm}{1pt}
 \end{center}
 
-By the way: DAVAI stands for \textit{``\textbf{D}evice \textbf{A}iming at the \textbf{VA}lidation of \textbf{I}AL\footnote{IAL = \textbf{I}FS-\textbf{A}rpege-\textbf{L}AM}''}
+By the way: DAVAI stands for \textit{``\textbf{D}evice \textbf{A}iming at the \textbf{VA}lidation of \textbf{I}AL''}
 
 \newpage
 \section{TUTORIAL: Test an IAL development} 
@@ -79,8 +79,10 @@ To use DAVAÏ to test your contribution to the next development release, you nee
 \subsection{Run tests} 
 \subsubsection{Setup your experiment}
 \begin{enumerate}[label=(\alph*)]
- \item Create your experiment, specifying which version of the tests you want to use:\\
- \texttt{davai-new\_xp \textit{<my\_branch>} -v \textit{<tests\_version>}}\\
+ \item Create your experiment, specifying which version of the tests you want to use:
+ 
+ \texttt{davai-new\_xp \textit{<my\_branch>} -v \textit{<tests\_version>}}
+ 
  (e.g. \texttt{davai-new\_xp mary\_CY48T1\_cleaning -v DV48T1})\\
  $\hookrightarrow$ An experiment with a unique experiment ID is created and prompted as output of the command, together with its path. 
  \begin{itemize}
@@ -93,16 +95,18 @@ To use DAVAÏ to test your contribution to the next development release, you nee
  \end{itemize}
  \item $\hookrightarrow$ Go to the (prompted) experiment directory.\\
  \\
- Now you may want to set some options differently from the default, for this experiment. To do so, open file \texttt{conf/davai\_nrv.ini} and tune the parameters in the \texttt{[DEFAULT]} section. The usual tunable parameters are detailed in Section~\ref{sect:options}.
- \item Launch the build and tests:\\
- \texttt{davai-run\_xp}\\
- The script will first run the build of the branch and wait for the executables (that step may take a while, especially with several compilation flavours), and then launch the tests (through scheduler on HPC).
+ If you want to set some options differently from the default, open file \texttt{conf/davai\_nrv.ini} and tune the parameters in the \texttt{[DEFAULT]} section. The usual tunable parameters are detailed in Section~\ref{sect:options}.
+ \item Launch the build and tests:
+ 
+ \texttt{davai-run\_xp}
+ 
+ After initializing the Ciboulaï page for the experiment, the command will first run the build of the branch and wait for the executables (that step may take a while, depending on the scope of your modifications, especially with several compilation flavours). Once build completed, it will then launch the tests (through scheduler on HPC).
 \end{enumerate}
 
 
 \subsubsection{Monitor and inspect results}
 \begin{enumerate}[resume,label=(\alph*)]
- \item Monitor the execution of the jobs with the scheduler (e.g. with SLURM: \texttt{squeue -u \textit{<user>}})
+ \item Monitor the execution of the jobs with the scheduler (with SLURM: \texttt{squeue -u \textit{<user>}})
  \item Check the tests results summary on the \textit{Ciboulaï} dashboard, which URL is prompted at the end of tests launch, or visible in the config file:
  \begin{itemize}
   \item open \textit{Ciboulaï} dashboard in a web browser: (\href{https://www.umr-cnrm.fr/davai/}{https://www.umr-cnrm.fr/davai/})
@@ -110,13 +114,17 @@ To use DAVAÏ to test your contribution to the next development release, you nee
    \item[$\Rightarrow$] To guide you in the navigation in \textit{Ciboulaï}, cf. Section~\ref{sect:ciboulai_navigation}.
    \item[$\Rightarrow$] To get the paths to a job output or abort directory: button \texttt{[+]} then \textit{\textbf{Context}}.
   \end{itemize}
-  \item if the dashboard is not accessible, a command-line version of the status is possible; in the XP directory, run:\\
-  \texttt{davai-xp\_status}\\
+  \item if the dashboard is not accessible, a command-line version of the status is possible; in the XP directory, run:
+  
+  \texttt{davai-xp\_status}
+  
   to see the status summary of each job.
   The detailed status and expertise of tests are also available as json files on the Vortex cache:\\
  \texttt{belenos:/scratch/mtool/<user>/cache/vortex/davai/<vconf>/<xpid>/summaries\_stack/}\\
- or\\
- \texttt{davai-xp\_status -t <task>}\\
+ or
+ 
+ \texttt{davai-xp\_status -t <task>}
+ 
  $\Rightarrow$ To get the paths to a job output or abort directory: \texttt{davai-xp\_status -t <task>} then open the \texttt{itself} file and look in the \textit{\textbf{Context}} section.
  \end{itemize}
 \end{enumerate}
@@ -129,14 +137,25 @@ To use DAVAÏ to test your contribution to the next development release, you nee
 
 \subsubsection{First tips}
 \begin{itemize}
- \item If the \textbf{pack preparation or compilation fails}, for whatever reason, the build step prints an error message and the \texttt{davai-run\_xp} stops before running the tests. You can find the output of the pack preparation or compilation in \texttt{logs/} directory, as any other test log.\\
- A very common error is when the pack already exists; if you actually want to overwrite the contents of the pack (e.g. because it is an update of the same experiment), re-run \texttt{davai-run\_xp} or \texttt{davai-build} with option \texttt{-e/--preexisting\_pack}. Otherwise, you'd need to move/delete the existing pack.
+ \item All Davai commands are prefixed \texttt{davai-*} and can be listed with \texttt{davai-help}. All commands are auto-documented with option \texttt{-h}.
+ \item If the \textbf{pack preparation or compilation fails}, for whatever reason, the build step prints an error message and the \texttt{davai-run\_xp} command stops before running the tests. You can find the output of the pack preparation or compilation in \texttt{logs/} directory, as any other test log file.\\
+ A very common error is when the pack already exists; if you actually want to overwrite the contents of the pack (e.g. because you just fixed a code issue in the branch), you may need option \texttt{-e/--preexisting\_pack}:
+ 
+ \texttt{davai-run\_xp -e}\\
+ or\\
+ \texttt{davai-build -e}
+ 
+ Otherwise, if the pack preexists independantly for valid reasons, you will need to move/delete the existing pack, or rename your branch.
  \item The tests are organised as \textit{\textbf{tasks}} and \textit{\textbf{jobs}}:
   \begin{itemize}
    \item a \textit{\textbf{task}} consists in fetching input resources, running an executable, analyzing its outputs to the Ciboulai dashboard and dispatching (archiving) them: \textit{1 test = 1 task}
    \item a \textit{\textbf{job}} consists in a sequential driver of one or several \textit{task(s)}: either a flow sequence (i.e. outputs of task N is an input of task N+1) or family sequence (e.g. run independantly an IFS and an Arpege forecast)
   \end{itemize}
- \item To \textbf{fix a piece of code}, the best is to modify the code in your Git repo, then re-run \texttt{davai-run\_xp} (or \texttt{davai-build} then \texttt{davai-run\_tests}). You don't necessarily need to commit the change rightaway, the non-committed changes are exported from Git to the pack. Don't forget to commit eventually though.
+ \item To \textbf{fix a piece of code}, the best is to modify the code in your Git repo, then re-run
+ 
+ \texttt{davai-run\_xp -e} (or \texttt{davai-build -e} and then \texttt{davai-run\_tests}).
+ 
+ You don't necessarily need to commit the change rightaway, the non-committed changes are exported from Git to the pack. Don't forget to commit eventually though, before issuing pull request.
  \item To \textbf{re-run one job only after re-compilation}, type\\ \texttt{davai-run\_tests -l}\\
  to list the jobs and then\\
  \texttt{davai-run\_tests <category.job>}\\
