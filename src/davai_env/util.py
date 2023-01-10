@@ -9,7 +9,7 @@ import os
 import io
 import datetime
 
-from . import config, DAVAI_XP_COUNTER, DAVAI_PROFILE, CONFIG_USER_FILE, CONFIG_TEMPLATE_USER_FILE
+from . import config, DAVAI_XP_COUNTER, CONFIG_USER_FILE, CONFIG_TEMPLATE_USER_FILE
 
 
 def expandpath(path):
@@ -42,6 +42,7 @@ def set_default_mtooldir():
 
 def export_token_in_profile(token):
     """Export Ciboulai token in davai profile."""
+    from . import DAVAI_PROFILE
     with io.open(DAVAI_PROFILE, 'a') as p:
         p.write("export CIBOULAI_TOKEN={}  # update: {}\n".format(token, str(datetime.date.today())))
 
