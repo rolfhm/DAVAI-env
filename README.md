@@ -39,26 +39,26 @@ To install them on a new machine, cf. the projects' installation instructions.
 Installation
 ------------
 
-Local pre-requirements:
-* for [`belenos`@MF](doc/belenos.md)
+* Local pre-requirements:
+   * for [`belenos`@MF](doc/belenos.md)
 
-To setup on a pre-installed machine (e.g. `belenos`@MF):
-* belenos: `module use ~mary/public/modulefiles`
-           `module load davai`
-* atos@bologna: `module use ~rm9/public/modulefiles`
-                `module load davai`
+* To setup on a pre-installed machine (e.g. `belenos`@MF):
+  * belenos: `module use ~mary/public/modulefiles`
+             `module load davai`
+  * atos@bologna: `module use ~rm9/public/modulefiles`
+                  `module load davai`
 
-To setup your own install:
-1. Clone this repository, e.g. in `~/repositories/`:\
-   `git clone https://github.com/ACCORD-NWP/DAVAI-env.git`
-2. Initialize your DAVAI environment:
-   - if you want to inspect possible customizations:
-     - `DAVAI-env/bin/davai-config show`
-     - `DAVAI-env/bin/davai-config preset_user`
-   - export env vars:
-     - `DAVAI_ENV=~/repositories/DAVAI-env`
-     - `export PATH=$PATH:$DAVAI_ENV/bin`
-     - `export PYTHONPATH=$PYTHONPATH:$DAVAI_ENV/src`
+* To setup your own install:
+  * Clone this repository, e.g. in `~/repositories/`:\
+    `git clone https://github.com/ACCORD-NWP/DAVAI-env.git`
+  * Set paths:
+    - `DAVAI_ENV=~/repositories/DAVAI-env`
+    - `export PATH=$PATH:$DAVAI_ENV/bin`
+    - `export PYTHONPATH=$PYTHONPATH:$DAVAI_ENV/src`
+
+* If you want to inspect possible customizations:
+  - `DAVAI-env/bin/davai-config show`
+  - `DAVAI-env/bin/davai-config preset_user`
 
 Documentation
 -------------
