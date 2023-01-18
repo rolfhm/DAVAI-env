@@ -65,7 +65,7 @@ Installation
 Quick start
 -----------
 
-A Tutorial is available in the User Guide (cf. above).
+A Tutorial is available in the User Guide (cf. below).
 
 For a quick start:
 
