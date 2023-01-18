@@ -59,8 +59,8 @@ Installation
     - `export PYTHONPATH=$PYTHONPATH:$DAVAI_ENV/src`
 
 * If you want to inspect possible customizations:
-  - `DAVAI-env/bin/davai-config show`
-  - `DAVAI-env/bin/davai-config preset_user`
+  - `davai-config show`
+  - `davai-config preset_user`
 
 Documentation
 -------------
