@@ -43,10 +43,12 @@ Installation
    * for [`belenos`@MF](doc/belenos.md)
 
 * To setup on a pre-installed machine (e.g. `belenos`@MF):
-  * belenos: `module use ~mary/public/modulefiles`
-             `module load davai`
-  * atos@bologna: `module use ~rm9/public/modulefiles`
-                  `module load davai`
+  * belenos:
+    - `module use ~mary/public/modulefiles`
+    - `module load davai`
+  * atos@bologna:
+    - `module use ~rm9/public/modulefiles`
+    - `module load davai`
 
 * To setup your own install:
   * Clone this repository, e.g. in `~/repositories/`:\
