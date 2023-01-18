@@ -62,19 +62,6 @@ Installation
   - `davai-config show`
   - `davai-config preset_user`
 
-Documentation
--------------
-
-The documentation is available under `doc/` directory.
-Part of the documentation needs to be compiled from `.tex` sources, using `pdflatex`.
-To do so:
-
-* `make doc`
-
-and the generated PDF document will be found under `doc/pdf/Davai_User_Guide.pdf`.
-
-The User Guide is also available for main releases on: https://github.com/ACCORD-NWP/DAVAI-env/releases
-
 Quick start
 -----------
 
@@ -88,6 +75,9 @@ For a quick start:
    To know what version of the tests to use, cf. below.
 2. Go to the prompted directory of the experiment (ending with `.../dv-<nnnn>-<platform>@<user>/davai/nrv/`)
 3. Run the tests: `davai-run_xp` and monitor (standard output for the build, then job scheduler).
+4. If you need to re-build & re-run tests:
+  - `davai-build [-h]`
+  - `davai-run_tests [-h]`
 
 More details to be found in the User Guide.
 
@@ -95,6 +85,19 @@ Tests versions and reference experiments
 ----------------------------------------
 
 Cf. https://github.com/ACCORD-NWP/DAVAI-tests/wiki
+
+Documentation
+-------------
+
+The documentation is available under `doc/` directory.
+Part of the documentation needs to be compiled from `.tex` sources, using `pdflatex`.
+To do so:
+
+* `make doc`
+
+and the generated PDF document will be found under `doc/pdf/Davai_User_Guide.pdf`.
+
+The User Guide is also available for main releases on: https://github.com/ACCORD-NWP/DAVAI-env/releases
 
 Lexicon
 -------
