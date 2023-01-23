@@ -84,7 +84,7 @@ More details to be found in the User Guide.
 Tests versions and reference experiments
 ----------------------------------------
 
-Cf. https://github.com/ACCORD-NWP/DAVAI-tests/wiki
+Cf. https://github.com/ACCORD-NWP/DAVAI-tests/wiki/Versions-of-tests
 
 Documentation
 -------------
