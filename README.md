@@ -3,7 +3,7 @@ DAVAI environment & interface
 
 This project contains:
 
-* the DAVAI command-line tools, esp. to create DAVAI experiments,
+* the DAVAI command-line tools, to create DAVAI experiments and run them,
 * the configuration files to handle general preferences and machine-dependent installation,
 * the documentation
 
@@ -23,7 +23,7 @@ procedures. These include:
   of the jobs. It embeds a number of necesary-as-well sub-packages.
 * [_**ecbundle**_](https://git.ecmwf.int/projects/ECSDK/repos/ecbundle):
   a utility from ECMWF to gather codes from several repositories, in the required version for each,
-  based on a YAML descriptive file (called _bundle_)
+  based on a YAML descriptive file (called _bundle_); used in `IAL-build`
 * [_**IAL-build**_](https://github.com/ACCORD-NWP/IAL-build):
   wrappers around `git` and `gmkpack` (and eventually other building tools) to build IAL executables from Git
 * [_**IAL-expertise**_](https://github.com/ACCORD-NWP/IAL-expertise):
@@ -39,8 +39,7 @@ To install them on a new machine, cf. the projects' installation instructions.
 Installation
 ------------
 
-* Local pre-requirements:
-   * for [`belenos`@MF](doc/belenos.md)
+* on [`belenos`@MF](doc/belenos.md)
 
 * To setup on a pre-installed machine (e.g. `belenos`@MF):
   * belenos:
@@ -84,24 +83,24 @@ More details to be found in the User Guide.
 Tests versions and reference experiments
 ----------------------------------------
 
-Cf. https://github.com/ACCORD-NWP/DAVAI-tests/wiki/Versions-of-tests
+=> https://github.com/ACCORD-NWP/DAVAI-tests/wiki/Versions-of-tests
 
 Documentation
 -------------
 
-The documentation is available under `doc/` directory.
+The User Guide is available for main releases on: https://github.com/ACCORD-NWP/DAVAI-env/releases
+
+Otherwise it is also available under `doc/` directory.
 Part of the documentation needs to be compiled from `.tex` sources, using `pdflatex`.
-To do so:
+To do so, from within the repository root, type:
 
 * `make doc`
 
 and the generated PDF document will be found under `doc/pdf/Davai_User_Guide.pdf`.
 
-The User Guide is also available for main releases on: https://github.com/ACCORD-NWP/DAVAI-env/releases
-
 Lexicon
 -------
 
-* **DAVAI** stands for: _"Device Aiming at the VAlidation of IAL"_
+* **DAVAI** = _"Device Aiming at the VAlidation of IAL"_
 * **IAL** = IFS-Arpege-LAM
 
