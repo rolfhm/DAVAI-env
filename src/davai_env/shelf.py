@@ -38,6 +38,9 @@ class Shelf(object):
             self.name = shelf
             self.tarfile = shelf + '.tar'
         self.radical, self.user = shelf.split('@')
+        if user == 'davai':
+            self.user = config['davai_alias_user']
+            self.vtx_vapp_vconf = os.path.join(config['davai_alias_arch_subdir'], vtx_vapp_vconf)
 
     def mkt2tar(self, out_dir=None, gz_compression=False, **_):
         """Tar (and compress) a shelf into a tar/tgz."""
