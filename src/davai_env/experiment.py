@@ -338,7 +338,7 @@ class ThisXP(object):
         self._launch('ciboulai_xpsetup', 'ciboulai_xpsetup',
                      profile='rd',
                      usecase=self.usecase,
-                     tests_version=self.davai_tests_version,
+                     tests_version=self.davai_tests_version.replace("'", '"'),
                      **self.sources_to_test)
 
     def launch_build(self,
