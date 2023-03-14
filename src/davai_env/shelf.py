@@ -12,7 +12,8 @@ import tempfile
 import subprocess
 import tarfile
 
-from . import config, guess_host, expandpath
+from . import config, guess_host
+from .util import expandpath
 
 # set variables
 host = guess_host()
@@ -38,9 +39,9 @@ class Shelf(object):
             self.name = shelf
             self.tarfile = shelf + '.tar'
         self.radical, self.user = shelf.split('@')
-        if user == 'davai':
-            self.user = config['davai_alias_user']
-            self.vtx_vapp_vconf = os.path.join(config['davai_alias_arch_subdir'], vtx_vapp_vconf)
+        if self.user == 'davai':
+            self.user = config['defaults']['davai_alias_user']
+            self.vtx_vapp_vconf = os.path.join(config['defaults']['davai_alias_arch_subdir'], self.vtx_vapp_vconf)
 
     def mkt2tar(self, out_dir=None, gz_compression=False, **_):
         """Tar (and compress) a shelf into a tar/tgz."""
