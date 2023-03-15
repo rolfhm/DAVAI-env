@@ -362,7 +362,8 @@ class ThisXP(object):
         else:
             raise NotImplementedError("compiling_system == {}".format(self.conf['DEFAULT']['compiling_system']))
         # run build monitoring
-        set_default_mtooldir()
+        if guess_host() != 'atos_bologna':  # FIXME: dirty
+            set_default_mtooldir()
         self._launch('build.wait4build', 'build',
                      drymode=drymode,
                      profile='rd')
