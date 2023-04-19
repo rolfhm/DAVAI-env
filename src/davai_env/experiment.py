@@ -370,12 +370,17 @@ class ThisXP(object):
 
     def launch_jobs(self, only_job=None, drymode=False):
         """Launch jobs, either all, or only the one requested."""
+        only_job_launched = False
         for family, jobs in self.all_jobs.items():
             for job in jobs:
                 task = '.'.join([family, job])
                 name = job
                 if only_job in (None, task):
                     self._launch(task, name, drymode=drymode)
+                    if only_job is not None:
+                        only_job_launched = True
+        if only_job is not None and not only_job_launched:
+            raise ValueError("Unknown job: {}".format(only_job))
 
     def afterlaunch_prompt(self):
         print("=" * 100)
