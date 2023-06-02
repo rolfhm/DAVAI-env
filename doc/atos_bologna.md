@@ -23,6 +23,8 @@ Pre-requirements (if not already set up)
 
 2. GMKPACK profile variables
    ```
+   module load intel/2021.4.0
+   
    # Gmkpack is installed at Ryad El Khatib's
    HOMEREK=~rme
    export GMKROOT=$HOMEREK/public/bin/gmkpack
