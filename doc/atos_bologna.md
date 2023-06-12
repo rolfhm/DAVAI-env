@@ -21,8 +21,7 @@ Pre-requirements (if not already set up)
    module load ecmwf-toolbox
    ```
 
-2. Ensure accessibility of experiments for support (in `.bash_profile` too)
-   `umask 022`
+2. Ensure permissions to `accord` group (e.g. with `chgrp`) for support
 
 3. GMKPACK profile variables
    ```
