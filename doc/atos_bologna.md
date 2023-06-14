@@ -26,7 +26,7 @@ Pre-requirements (if not already set up)
    for d in $HOME/davai $HOME/pack $SCRATCH/mtool
    do
    mkdir -p $d
-   chgrp accord $d
+   chgrp -R accord $d
    done
    ```
 
