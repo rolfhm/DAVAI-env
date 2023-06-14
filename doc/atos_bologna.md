@@ -22,6 +22,13 @@ Pre-requirements (if not already set up)
    ```
 
 2. Ensure permissions to `accord` group (e.g. with `chgrp`) for support
+   ```
+   for d in $HOME/davai $HOME/pack $SCRATCH/mtool
+   do
+   mkdir -p $d
+   chgrp accord $d
+   done
+   ```
 
 3. GMKPACK profile variables
    ```
