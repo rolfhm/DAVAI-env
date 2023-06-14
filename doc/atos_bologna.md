@@ -18,7 +18,7 @@ Pre-requirements (if not already set up)
 1. Load modules (conveniently in your `.bash_profile`):
    ```
    module load python3
-   module load ecmwf-toolbox
+   module load ecmwf-toolbox/2021.08.3.0
    ```
 
 2. Ensure permissions to `accord` group (e.g. with `chgrp`) for support
