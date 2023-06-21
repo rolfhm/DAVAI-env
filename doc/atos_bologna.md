@@ -5,10 +5,11 @@ Quick install
 -------------
 
 ```
+module load python3
 module use ~rm9/public/modulefiles
 module load davai
 ```
-I advise to put the first line in your `.bash_profile`, and execute the second only when needed.
+I advise to put the first two lines in your `.bash_profile`, and execute the third only when needed.
 
 ---
 
